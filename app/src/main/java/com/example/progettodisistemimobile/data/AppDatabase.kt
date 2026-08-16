@@ -27,7 +27,7 @@ abstract class AppDatabase : RoomDatabase() {
 
     private class AppDatabaseCallback(
         private val scope: CoroutineScope
-    ) : RoomDatabase.Callback() {
+    ) : Callback() {
 
         override fun onCreate(db: SupportSQLiteDatabase) {
             super.onCreate(db)
@@ -44,7 +44,7 @@ abstract class AppDatabase : RoomDatabase() {
                 Cantante("Marco Mengoni", "Due Vite", 20, 0, null, null),
                 Cantante("Lazza", "Cenere", 18, 0, null, null),
                 Cantante("Mr. Rain", "Supereroi", 15, 0, null, null),
-                // Aggiungi qui tutti gli altri...
+                // Qui puoi aggiungere tutti i 30 cantanti di Sanremo
             )
             cantanti.forEach { dao.insertCantante(it) }
 

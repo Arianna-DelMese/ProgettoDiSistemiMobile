@@ -13,6 +13,9 @@ interface AppDao {
     @Query("SELECT * FROM utente WHERE nome_utente = :username")
     suspend fun getUtenteByUsername(username: String): Utente?
 
+    @Query("SELECT token FROM utente WHERE nome_utente = :username")
+    fun getTokenUtente(username: String): Flow<Int>
+
     @Query("UPDATE utente SET nome_utente = :nuovoNome WHERE nome_utente = :vecchioNome")
     suspend fun updateNomeUtente(vecchioNome: String, nuovoNome: String)
 

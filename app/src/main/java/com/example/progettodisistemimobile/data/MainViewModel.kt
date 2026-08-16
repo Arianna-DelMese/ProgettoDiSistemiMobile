@@ -14,6 +14,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val tuttiICantantiPerPunti: Flow<List<Cantante>> = dao.getCantantiPerPunti()
     val tuttiIBundle: Flow<List<Bundle>> = dao.getAllBundles()
 
+    fun getTokens(username: String): Flow<Int> = dao.getTokenUtente(username)
+
     fun getLegheUtente(username: String): Flow<List<Lega>> = dao.getLeghePerUtente(username)
     
     fun getSquadra(idLega: Int, username: String): Flow<List<Cantante>> = 
