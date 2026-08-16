@@ -50,9 +50,12 @@ abstract class AppDatabase : RoomDatabase() {
 
             // --- POPOLAMENTO BUNDLE ---
             val bundles = listOf(
-                Bundle(1, 100, 5),   // 100 token per 5€
-                Bundle(2, 250, 10),  // 250 token per 10€
-                Bundle(3, 600, 20)   // 600 token per 20€
+                Bundle(1, 10, 1),   // 10 token per 1€
+                Bundle(2, 25, 2),
+                Bundle(3, 50, 4),
+                Bundle(4, 100, 8),
+                Bundle(5, 200, 15),
+                Bundle(6, 500, 35)
             )
             bundles.forEach { dao.insertBundle(it) }
         }
