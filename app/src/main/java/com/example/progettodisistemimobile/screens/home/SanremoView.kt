@@ -1,11 +1,11 @@
-package com.example.progettodisistemimobile.screens
+package com.example.progettodisistemimobile.screens.home
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -25,7 +25,6 @@ fun SanremoView(viewModel: MainViewModel) {
     val cantanti by viewModel.tuttiICantantiPerPunti.collectAsState(initial = emptyList())
 
     val isEvening4 = selectedEvening == 4
-    // Colore di accento e sfondo per la serata 4
     val externalBgColor = if (isEvening4) Color(0xFF121212) else MaterialTheme.colorScheme.secondaryContainer
     val accentColor = if (isEvening4) Color(0xFFFFD700) else Color.Gray
     val cardContentColor = if (isEvening4) Color.White else Color.Black
@@ -51,18 +50,15 @@ fun SanremoView(viewModel: MainViewModel) {
             .padding(horizontal = 24.dp, vertical = 20.dp)
     ) {
         Column {
-            // Selettore serate con effetto tab/collinetta e bordi sempre visibili
             Row(
                 modifier = Modifier
                     .padding(start = 12.dp)
-                    .zIndex(2f), // Per stare sopra il bordo della card
+                    .zIndex(2f),
                 horizontalArrangement = Arrangement.Start
             ) {
                 (1..5).forEach { evening ->
                     val isSelected = selectedEvening == evening
                     val isSpecial4 = evening == 4
-                    
-                    // Colore quadratino selezionato
                     val selectedColor = if (isSpecial4) Color(0xFFFFD700) else Color.White
                     val baseBorderColor = if (isEvening4) Color.DarkGray else Color.Gray
 
@@ -73,7 +69,7 @@ fun SanremoView(viewModel: MainViewModel) {
                             .then(
                                 if (isSelected) {
                                     Modifier
-                                        .offset(y = 1.dp) // Si fonde col bordo card
+                                        .offset(y = 1.dp)
                                         .background(color = selectedColor, shape = RectangleShape)
                                         .border(width = 1.dp, color = accentColor, shape = RectangleShape)
                                 } else {
@@ -95,7 +91,6 @@ fun SanremoView(viewModel: MainViewModel) {
                 }
             }
 
-            // Riquadro Classifica
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -120,10 +115,9 @@ fun SanremoView(viewModel: MainViewModel) {
                     )
 
                     LazyColumn(modifier = Modifier.fillMaxSize()) {
-                        itemsIndexed(cantantiSerata) { index, pair ->
-                            val cantante = pair.first
+                        items(cantantiSerata) { (cantante, posizioneReale) ->
                             CantanteRow(
-                                position = index + 1,
+                                position = posizioneReale, // Prende la posizione reale dal DB
                                 cantante = cantante,
                                 valoreDestra = "",
                                 isSanremo = true,
@@ -132,7 +126,7 @@ fun SanremoView(viewModel: MainViewModel) {
                             )
                             HorizontalDivider(
                                 modifier = Modifier.padding(vertical = 4.dp), 
-                                color = (if (isEvening4) Color.Gray else Color.LightGray).copy(alpha = 0.3f)
+                                color = (if (isEvening4) Color.Gray else Color.LightGray).copy(alpha = 0.2f)
                             )
                         }
                     }

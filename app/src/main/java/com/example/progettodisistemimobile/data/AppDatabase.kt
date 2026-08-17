@@ -39,9 +39,9 @@ abstract class AppDatabase : RoomDatabase() {
         }
 
         suspend fun populateDatabase(dao: AppDao) {
-            // --- POPOLAMENTO CANTANTI ---
+            // --- POPOLAMENTO CANTANTI (Classifiche originali corrette) ---
             val cantanti = listOf(
-                Cantante("Marco Mengoni", "Due Vite", 20, 15, "Lisa", "Money", 1, null, 30, 12, 29),
+                Cantante("Marco Mengoni", "Due Vite", 20, 15, "Lisa", "Money", 1, 13, null, 12, 29), // Spostato in Serata 2 (pos 13)
                 Cantante("Sal Da Vinci", "Per Sempre Sì", 18, 9, "Bobby Solo", "Una Lacrima sul Viso", 2, 5, null, 29, 20),
                 Cantante("Mr. Rain", "Supereroi", 15, 12, "Zucchero", "Funky Gallo", 3, 15, null, 11, 22),
                 Cantante("Lady Gaga", "Judas", 25, 20, "Queen", "Radio Gaga", 4, 6, null, 1, 7),
@@ -51,9 +51,8 @@ abstract class AppDatabase : RoomDatabase() {
                 Cantante("Ricchi e Poveri", "Mamma Maria", 16, 13, "RM", "Hooligan", 8, 4, null, 26, 23),
                 Cantante("Fausto Leali", "Mi Manchi", 10, 9, "Arisa", "Sincerità", 9, 7, null, 27, 24),
                 Cantante("Elvis Presley", "Love Me Tender", 25, 20, "Jin", "Super Toona", 10, 10, null, 10, 13),
-
                 Cantante("Anna Oxa", "Ti Lascerò", 15, 10, "Pupo", "Gelato al Chioccolato", 11, 9, null, 2, 25),
-                Cantante("Cristiano Malgiolio", "Fernando", 18, 12, "Jungkook", "Seven", 12, 3, null, 9, 1),
+                Cantante("Cristiano Malgioglio", "Fernando", 18, 12, "Jungkook", "Seven", 12, 3, null, 9, 1),
                 Cantante("Simon Le Bon", "Wild Boys", 10, 5, "Orietta Berti", "Finché la Barca Va", 13, 2, null, 3, 3),
                 Cantante("I Cugini di Campagna", "Anima Mia", 18, 13, "Riccardo Cocciante", "Cervo a Primavera", 14, 8, null, 25, 14),
                 Cantante("Psy", "Gangnam Style", 17, 10, "SUGA", "That, That", 15, 1, null, 14, 16),
@@ -62,7 +61,6 @@ abstract class AppDatabase : RoomDatabase() {
                 Cantante("Pooh", "Dammi Solo un Minuto", 14, 14, "Ariana Grande", "Popular", 18, null, 13, 15, 26),
                 Cantante("Righeira", "Vamos a la Playa", 10, 9, "Mungo Jerry", "In the Summertime", 19, null, 12, 23, 27),
                 Cantante("Madonna", "Like a Virgin", 13, 15, "Jimin e Shakira", "Waka Waka", 20, null, 1, 4, 10),
-
                 Cantante("Laura Pausini", "La Solitudine", 16, 13, "J-HOPE", "Cicken Noodle Soup", 21, null, 3, 16, 4),
                 Cantante("Louis Armstron", "What a Wonderfull World", 18, 20, "V", "Into the Sun", 22, null, 8, 17, 9),
                 Cantante("Vasco Rossi", "Una Vita Spericolata", 15, 11, "Jenni", "Boombayah", 23, null, 4, 20, 30),
@@ -87,19 +85,15 @@ abstract class AppDatabase : RoomDatabase() {
             )
             bundles.forEach { dao.insertBundle(it) }
 
-            // --- DATI PROVVISORI (UTENTE, LEGA, SQUADRA) SOFI QUANDO IMPLEMENTI LE TUE PARTI CANCELLALO ---
+            // --- DATI PROVVISORI PER TEST ---
             val testUser = Utente("MarioRossi", "mario@example.com", "password123", null, 150, null, null)
             dao.insertUtente(testUser)
-
             val idLega = dao.insertLega(Lega(0, "Lega degli Esperti", null, "Una lega per veri appassionati", true, 41.89, 12.49))
-            
-            // Creiamo la squadra per Mario nella Lega degli Esperti (ID squadra generato automaticamente)
             val idSquadra = dao.joinLega(UtenteInLega(0, "MarioRossi", idLega.toInt(), true, 45))
             
-            // Popoliamo la squadra con i cantanti
             val composizione = listOf(
                 ComposizioneSquadra(idSquadra.toInt(), "Marco Mengoni", 0),
-                ComposizioneSquadra(idSquadra.toInt(), "Cristiano Malgiolio", 1),
+                ComposizioneSquadra(idSquadra.toInt(), "Cristiano Malgioglio", 1),
                 ComposizioneSquadra(idSquadra.toInt(), "Sabrina Carpenter", 2),
                 ComposizioneSquadra(idSquadra.toInt(), "Mahmood", 3),
                 ComposizioneSquadra(idSquadra.toInt(), "Vasco Rossi", 4),

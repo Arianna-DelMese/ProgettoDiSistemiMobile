@@ -11,7 +11,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.progettodisistemimobile.screens.*
-import androidx.compose.ui.graphics.Color
+import com.example.progettodisistemimobile.screens.home.HomeScreen
 
 @Composable
 fun MainAppScaffold() {

@@ -1,4 +1,4 @@
-package com.example.progettodisistemimobile.screens
+package com.example.progettodisistemimobile.screens.home
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.MaterialTheme
@@ -34,7 +34,6 @@ fun CantanteRow(
         cantante.canzone
     }
 
-    // Inversione per Sanremo: Canzone sopra (Bold), Cantante sotto
     val mainText = if (isSanremo) songTitle ?: "" else singerName
     val subText = if (isSanremo) singerName else songTitle ?: ""
 
@@ -78,7 +77,7 @@ fun CantanteRow(
         if (valoreDestra.isNotEmpty()) {
             Text(
                 text = valoreDestra,
-                modifier = Modifier.width(60.dp),
+                modifier = Modifier.width(50.dp),
                 textAlign = TextAlign.End,
                 fontWeight = FontWeight.Bold,
                 fontSize = 15.sp,
