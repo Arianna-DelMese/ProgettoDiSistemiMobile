@@ -9,65 +9,53 @@ import kotlinx.coroutines.launch
 class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val dao = AppDatabase.getDatabase(application).appDao()
 
-    // --- DATI REATTIVI (FLOW) ---
-    // Questi vengono osservati dalla UI
+    // --- STREAM DI DATI (FLOW) ---
     val tuttiICantantiPerPunti: Flow<List<Cantante>> = dao.getCantantiPerPunti()
     val tuttiIBundle: Flow<List<Bundle>> = dao.getAllBundles()
-
+    
     fun getTokens(username: String): Flow<Int> = dao.getTokenUtente(username)
-
     fun getLegheUtente(username: String): Flow<List<Lega>> = dao.getLeghePerUtente(username)
-    
-    fun getSquadra(idLega: Int, username: String): Flow<List<Cantante>> = 
-        dao.getSquadraUtenteInLega(idLega, username)
+    fun getClassificaLega(idLega: Int): Flow<List<UtenteInLega>> = dao.getClassificaLega(idLega)
+    fun getSquadra(idLega: Int, username: String): Flow<List<Cantante>> = dao.getSquadraUtenteInLega(idLega, username)
 
-    // --- OPERAZIONI (FUNZIONI SOSPESE) ---
-    
+    // --- OPERAZIONI UTENTE ---
     fun registraUtente(nome: String, email: String, pass: String) {
         viewModelScope.launch {
-            val nuovoUtente = Utente(
-                nome_utente = nome,
-                email = email,
-                password = pass,
-                foto_profilo = null,
-                dati_biomedici = null,
-                dati_pagamento = null
-            )
-            dao.insertUtente(nuovoUtente)
+            dao.insertUtente(Utente(nome, email, pass, null, 150, null, null))
         }
     }
 
-    fun cambiaNomeUtente(vecchioNome: String, nuovoNome: String) {
+    fun aggiornaProfilo(vecchioNome: String, nuovoNome: String, nuovaFoto: String?) {
         viewModelScope.launch {
-            dao.updateNomeUtente(vecchioNome, nuovoNome)
+            if (vecchioNome != nuovoNome) dao.updateNomeUtente(vecchioNome, nuovoNome)
+            nuovaFoto?.let { dao.updateFotoProfilo(nuovoNome, it) }
         }
     }
 
+    // --- OPERAZIONI LEGA E SQUADRA ---
+    fun creaLega(nome: String, desc: String, username: String) {
+        viewModelScope.launch {
+            val id = dao.insertLega(Lega(0, nome, null, desc, true, null, null))
+            dao.joinLega(UtenteInLega(0, username, id.toInt(), true, 0))
+        }
+    }
+
+    fun aggiornaRuoloCantante(idSquadra: Int, nomeCantante: String, nuovoRuolo: Int) {
+        viewModelScope.launch {
+            dao.updateRuoloCantante(idSquadra, nomeCantante, nuovoRuolo)
+        }
+    }
+
+    // --- LOGICA ACQUISTO BUNDLE ---
     fun acquistaBundle(username: String, bundle: Bundle) {
         viewModelScope.launch {
-            // Logica bonus primo acquisto
             val giaAcquistato = dao.getOffertaUtente(username, bundle.id_bundle)
+            val bonus = if (giaAcquistato == null) 1.2 else 1.0 // +20% se è la prima volta
             
-            val tokenDaAggiungere = if (giaAcquistato == null) {
-                // Primo acquisto: +20% bonus (esempio)
-                (bundle.token * 1.2).toInt()
-            } else {
-                bundle.token
-            }
-
-            // 1. Aggiungiamo i token all'utente
-            dao.aggiungiToken(username, tokenDaAggiungere)
-            
-            // 2. Segniamo l'offerta come riscossa
+            dao.aggiungiToken(username, (bundle.token * bonus).toInt())
             if (giaAcquistato == null) {
                 dao.registraAcquistoBundle(OffertaUtente(username, bundle.id_bundle, true))
             }
-        }
-    }
-
-    fun aggiornaRuolo(idSquadra: Int, nomeCantante: String, nuovoRuolo: Int) {
-        viewModelScope.launch {
-            dao.updateRuoloCantante(idSquadra, nomeCantante, nuovoRuolo)
         }
     }
 }

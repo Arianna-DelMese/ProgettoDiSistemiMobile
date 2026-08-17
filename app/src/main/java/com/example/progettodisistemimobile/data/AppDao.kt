@@ -45,6 +45,12 @@ interface AppDao {
     fun getClassificaSerata5(): Flow<List<Cantante>>
 
     // --- LEGA E UTENTI IN LEGA ---
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertLega(lega: Lega): Long
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun joinLega(utenteInLega: UtenteInLega): Long
+
     @Query("""
         SELECT * FROM lega 
         INNER JOIN utente_in_lega ON lega.id_lega = utente_in_lega.id_lega 
@@ -59,6 +65,9 @@ interface AppDao {
     suspend fun getCreatoreLega(idLega: Int): UtenteInLega?
 
     // --- SQUADRA ---
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertComposizione(composizione: ComposizioneSquadra)
+
     @Query("""
         SELECT cantante.* FROM cantante 
         INNER JOIN composizione_squadra ON cantante.nome_cantante = composizione_squadra.nome_cantante 
@@ -67,6 +76,9 @@ interface AppDao {
         ORDER BY composizione_squadra.ruolo ASC
     """)
     fun getSquadraUtenteInLega(idLega: Int, username: String): Flow<List<Cantante>>
+
+    @Query("UPDATE composizione_squadra SET ruolo = :nuovoRuolo WHERE id_squadra = :idSquadra AND nome_cantante = :nomeCantante")
+    suspend fun updateRuoloCantante(idSquadra: Int, nomeCantante: String, nuovoRuolo: Int)
 
     // --- BUNDLE E OFFERTE ---
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -83,7 +95,4 @@ interface AppDao {
     
     @Query("UPDATE utente SET token = token + :nuoviToken WHERE nome_utente = :username")
     suspend fun aggiungiToken(username: String, nuoviToken: Int)
-
-    @Query("UPDATE composizione_squadra SET ruolo = :nuovoRuolo WHERE id_squadra = :idSquadra AND nome_cantante = :nomeCantante")
-    suspend fun updateRuoloCantante(idSquadra: Int, nomeCantante: String, nuovoRuolo: Int)
 }
