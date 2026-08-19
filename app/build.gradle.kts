@@ -65,6 +65,12 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
 
+    // Coil (Images)
+    implementation(libs.coil.compose)
+
+    // DataStore (Settings)
+    implementation(libs.androidx.datastore.preferences)
+
     // Test dependencies
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
