@@ -1,5 +1,6 @@
 package com.example.progettodisistemimobile.screens.profilo
 
+import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -8,9 +9,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -36,16 +35,24 @@ fun ProfiloScreen(viewModel: MainViewModel = viewModel()) {
     var isNameAvailable by remember { mutableStateOf(true) }
 
     // Stati per Cambia Immagine
-    var selectedImageUri by remember { mutableStateOf<android.net.Uri?>(null) }
+    var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
     var showImagePreview by remember { mutableStateOf(false) }
     var showImageSourceOptions by remember { mutableStateOf(false) }
 
-    // Preparazione sicura file per Fotocamera nella Cache
-    val tempUri = remember {
-        val file = File(context.cacheDir, "profile_pic_preview.jpg")
-        if (file.exists()) file.delete()
-        file.createNewFile()
-        FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
+    // Funzione sicura per generare l'URI della fotocamera solo al click
+    fun getTmpUri(): Uri? {
+        return try {
+            val tempFile = File(context.cacheDir, "profile_pic_preview.jpg")
+            if (tempFile.exists()) tempFile.delete()
+            tempFile.createNewFile()
+            FileProvider.getUriForFile(
+                context, 
+                "com.example.progettodisistemimobile.fileprovider", 
+                tempFile
+            )
+        } catch (e: Exception) {
+            null
+        }
     }
 
     val galleryLauncher = rememberLauncherForActivityResult(
@@ -55,7 +62,7 @@ fun ProfiloScreen(viewModel: MainViewModel = viewModel()) {
 
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture(),
-        onResult = { success -> if (success) { selectedImageUri = tempUri; showImagePreview = true } }
+        onResult = { success -> if (success) showImagePreview = true }
     )
 
     LaunchedEffect(newNameInput) {
@@ -73,13 +80,12 @@ fun ProfiloScreen(viewModel: MainViewModel = viewModel()) {
             .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.Start
     ) {
-        // --- SEZIONE DATI UTENTE (Unita) ---
-        ProfileHeader(utente = utente, sessionUsername = currentSessionUsername)
-        TokenDisplay(tokens = utente?.token ?: 0)
+        // --- VISUALIZZAZIONE DATI (UserInfoSection.kt) ---
+        UserInfoSection(utente = utente, sessionUsername = currentSessionUsername)
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // --- SEZIONE NOME ---
+        // --- CAMBIA NOME (ChangeNameSection.kt) ---
         ChangeNameSection(
             newNameInput = newNameInput,
             onNameChange = { newNameInput = it },
@@ -94,7 +100,7 @@ fun ProfiloScreen(viewModel: MainViewModel = viewModel()) {
 
         Spacer(modifier = Modifier.height(48.dp))
 
-        // --- SEZIONE IMMAGINE (Unita) ---
+        // --- CAMBIA IMMAGINE (ChangeImageSection.kt) ---
         ChangeImageSection(
             showImagePreview = showImagePreview,
             selectedImageUri = selectedImageUri,
@@ -115,14 +121,18 @@ fun ProfiloScreen(viewModel: MainViewModel = viewModel()) {
                 },
                 onCameraSelect = {
                     showImageSourceOptions = false
-                    cameraLauncher.launch(tempUri)
+                    val uri = getTmpUri()
+                    if (uri != null) {
+                        selectedImageUri = uri
+                        cameraLauncher.launch(uri)
+                    }
                 }
             )
         }
 
         Spacer(modifier = Modifier.height(48.dp))
 
-        // --- SEZIONE TEMA ---
+        // --- TEMA (ThemeSelectionSection.kt) ---
         ThemeSelectionSection(
             themeMode = themeMode,
             onThemeChange = { viewModel.updateTheme(it) }

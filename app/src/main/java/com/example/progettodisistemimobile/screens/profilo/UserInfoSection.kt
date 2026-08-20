@@ -20,52 +20,56 @@ import coil.compose.AsyncImage
 import com.example.progettodisistemimobile.data.Utente
 
 @Composable
-fun ProfileHeader(utente: Utente?, sessionUsername: String) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.padding(bottom = 16.dp)
-    ) {
-        if (utente?.foto_profilo != null) {
-            AsyncImage(
-                model = utente.foto_profilo,
-                contentDescription = null,
-                modifier = Modifier
-                    .size(80.dp)
-                    .clip(CircleShape)
-                    .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape),
-                contentScale = ContentScale.Crop
-            )
-        } else {
-            Box(
-                modifier = Modifier
-                    .size(80.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primaryContainer),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(Icons.Default.Person, null, modifier = Modifier.size(50.dp), tint = MaterialTheme.colorScheme.primary)
+fun UserInfoSection(utente: Utente?, sessionUsername: String) {
+    Column {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(bottom = 16.dp)
+        ) {
+            if (utente?.foto_profilo != null) {
+                AsyncImage(
+                    model = utente.foto_profilo,
+                    contentDescription = "Foto profilo",
+                    modifier = Modifier
+                        .size(80.dp)
+                        .clip(CircleShape)
+                        .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape),
+                    contentScale = ContentScale.Crop
+                )
+            } else {
+                Box(
+                    modifier = Modifier
+                        .size(80.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.primaryContainer),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        Icons.Default.Person,
+                        null,
+                        modifier = Modifier.size(50.dp),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
             }
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            Text(
+                text = utente?.nome_utente ?: sessionUsername,
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold
+            )
         }
 
-        Spacer(modifier = Modifier.width(16.dp))
-
-        Text(
-            text = utente?.nome_utente ?: sessionUsername,
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold
-        )
-    }
-}
-
-@Composable
-fun TokenDisplay(tokens: Int) {
-    Row(modifier = Modifier.padding(bottom = 32.dp)) {
-        Text(text = "I miei token: ", fontSize = 18.sp, color = Color.Gray)
-        Text(
-            text = "$tokens",
-            fontSize = 20.sp,
-            fontWeight = FontWeight.ExtraBold,
-            color = MaterialTheme.colorScheme.primary
-        )
+        Row(modifier = Modifier.padding(bottom = 32.dp)) {
+            Text(text = "I miei token: ", fontSize = 18.sp, color = Color.Gray)
+            Text(
+                text = "${utente?.token ?: 0}",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.ExtraBold,
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
     }
 }
