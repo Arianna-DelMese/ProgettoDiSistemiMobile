@@ -1,21 +1,16 @@
-package com.example.progettodisistemimobile.screens
+package com.example.progettodisistemimobile.screens.profilo
 
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.CameraAlt
-import androidx.compose.material.icons.filled.Image
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -39,31 +34,31 @@ import java.io.File
 fun ProfiloScreen(viewModel: MainViewModel = viewModel()) {
     val context = LocalContext.current
     
-    // Gestione sessione: MarioRossi è l'utente iniziale
+    // Gestione sessione utente locale
     var currentSessionUsername by rememberSaveable { mutableStateOf("MarioRossi") }
     
-    // Dati reattivi dal database
+    // Dati reattivi dal DB
     val utente by viewModel.getUtente(currentSessionUsername).collectAsState(initial = null)
     val themeMode by viewModel.themeMode.collectAsState(initial = "Sistema")
 
-    // Stati per "Cambia Nome"
+    // Stati per Cambia Nome
     var newNameInput by remember { mutableStateOf("") }
     var isNameAvailable by remember { mutableStateOf(true) }
     
-    // Stati per "Cambia Immagine"
+    // Stati per Cambia Immagine
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
     var showImagePreview by remember { mutableStateOf(false) }
     var showImageSourceOptions by remember { mutableStateOf(false) }
 
-    // Funzione helper per ottenere il file temporaneo per la fotocamera
-    fun getTempUri(): Uri {
-        val tempFile = File(context.cacheDir, "profile_pic_tmp.jpg")
-        if (tempFile.exists()) tempFile.delete()
-        tempFile.createNewFile()
-        return FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", tempFile)
+    // Preparazione sicura file per Fotocamera nella Cache
+    val tempUri = remember {
+        val file = File(context.cacheDir, "profile_pic_preview.jpg")
+        if (file.exists()) file.delete()
+        file.createNewFile()
+        FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
     }
 
-    // Launcher: Galleria
+    // Launcher per Galleria
     val galleryLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
         onResult = { uri ->
@@ -74,18 +69,18 @@ fun ProfiloScreen(viewModel: MainViewModel = viewModel()) {
         }
     )
 
-    // Launcher: Fotocamera
+    // Launcher per Fotocamera
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture(),
         onResult = { success ->
             if (success) {
-                // selectedImageUri è già stato impostato al momento del lancio
+                selectedImageUri = tempUri
                 showImagePreview = true
             }
         }
     )
 
-    // Validazione nome mentre l'utente scrive
+    // Validazione disponibilità nome real-time
     LaunchedEffect(newNameInput) {
         if (newNameInput.isNotEmpty() && newNameInput != currentSessionUsername) {
             isNameAvailable = viewModel.isUsernameAvailable(newNameInput)
@@ -101,53 +96,11 @@ fun ProfiloScreen(viewModel: MainViewModel = viewModel()) {
             .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.Start
     ) {
-        // --- TESTATA: FOTO E NOME ---
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(bottom = 16.dp)
-        ) {
-            if (utente?.foto_profilo != null) {
-                AsyncImage(
-                    model = utente?.foto_profilo,
-                    contentDescription = "Foto profilo",
-                    modifier = Modifier
-                        .size(80.dp)
-                        .clip(CircleShape)
-                        .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape),
-                    contentScale = ContentScale.Crop
-                )
-            } else {
-                Box(
-                    modifier = Modifier
-                        .size(80.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.primaryContainer),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(Icons.Default.Person, null, modifier = Modifier.size(50.dp), tint = MaterialTheme.colorScheme.primary)
-                }
-            }
+        // --- INTESTAZIONE: FOTO E NOME ---
+        ProfileHeader(utente = utente, sessionUsername = currentSessionUsername)
 
-            Spacer(modifier = Modifier.width(16.dp))
-
-            // Nome persistente
-            Text(
-                text = utente?.nome_utente ?: currentSessionUsername,
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold
-            )
-        }
-
-        // --- TOKEN ---
-        Row(modifier = Modifier.padding(bottom = 32.dp)) {
-            Text(text = "I miei token: ", fontSize = 18.sp, color = Color.Gray)
-            Text(
-                text = "${utente?.token ?: 0}",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.ExtraBold,
-                color = MaterialTheme.colorScheme.primary
-            )
-        }
+        // --- RIGA TOKEN ---
+        TokenDisplay(tokens = utente?.token ?: 0)
 
         // --- FUNZIONE: CAMBIA NOME ---
         Text(text = "Impostazioni Account", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.secondary)
@@ -160,7 +113,7 @@ fun ProfiloScreen(viewModel: MainViewModel = viewModel()) {
                 onValueChange = { newNameInput = it },
                 modifier = Modifier.weight(1f),
                 singleLine = true,
-                placeholder = { Text("Nuovo nome") },
+                placeholder = { Text("Nuovo username") },
                 colors = TextFieldDefaults.colors(
                     unfocusedContainerColor = Color.Transparent,
                     focusedContainerColor = Color.Transparent
@@ -194,7 +147,7 @@ fun ProfiloScreen(viewModel: MainViewModel = viewModel()) {
                 Text("Cambia immagine profilo")
             }
         } else {
-            // Anteprima immagine
+            // Anteprima post-scelta
             Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
                 AsyncImage(
                     model = selectedImageUri,
@@ -218,37 +171,26 @@ fun ProfiloScreen(viewModel: MainViewModel = viewModel()) {
             }
         }
 
-        // Dialog per scelta sorgente
         if (showImageSourceOptions) {
-            AlertDialog(
-                onDismissRequest = { showImageSourceOptions = false },
-                title = { Text("Seleziona Sorgente") },
-                text = { Text("Vuoi scattare una nuova foto o caricarne una dalla galleria?") },
-                confirmButton = {
-                    TextButton(onClick = {
-                        showImageSourceOptions = false
-                        galleryLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-                    }) {
-                        Row { Icon(Icons.Default.Image, null); Spacer(Modifier.width(8.dp)); Text("Galleria") }
-                    }
+            ImageSourceDialog(
+                onDismiss = { showImageSourceOptions = false },
+                onGallerySelect = {
+                    showImageSourceOptions = false
+                    galleryLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
                 },
-                dismissButton = {
-                    TextButton(onClick = {
-                        showImageSourceOptions = false
-                        val uri = getTempUri()
-                        selectedImageUri = uri // Prepariamo l'URI per il launcher
-                        cameraLauncher.launch(uri)
-                    }) {
-                        Row { Icon(Icons.Default.CameraAlt, null); Spacer(Modifier.width(8.dp)); Text("Fotocamera") }
-                    }
+                onCameraSelect = {
+                    showImageSourceOptions = false
+                    cameraLauncher.launch(tempUri)
                 }
             )
         }
 
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(48.dp))
 
         // --- SEZIONE: TEMA ---
         var expanded by remember { mutableStateOf(false) }
+        val themes = listOf("Chiaro", "Scuro", "Sistema")
+
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(text = "Scegli tema: ", fontSize = 16.sp, fontWeight = FontWeight.Medium)
             Spacer(modifier = Modifier.width(16.dp))
@@ -264,11 +206,11 @@ fun ProfiloScreen(viewModel: MainViewModel = viewModel()) {
                     }
                 }
                 DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                    listOf("Chiaro", "Scuro", "Sistema").forEach { t ->
+                    themes.forEach { theme ->
                         DropdownMenuItem(
-                            text = { Text(t) }, 
+                            text = { Text(theme) }, 
                             onClick = { 
-                                viewModel.updateTheme(t)
+                                viewModel.updateTheme(theme)
                                 expanded = false 
                             }
                         )
@@ -276,6 +218,7 @@ fun ProfiloScreen(viewModel: MainViewModel = viewModel()) {
                 }
             }
         }
-        Spacer(modifier = Modifier.height(50.dp))
+        
+        Spacer(modifier = Modifier.height(40.dp))
     }
 }

@@ -1,4 +1,4 @@
-package com.example.progettodisistemimobile.screens
+package com.example.progettodisistemimobile.screens.leghe
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -37,7 +37,6 @@ fun LegaDetailScreen(idLega: Int, nomeLega: String, onBack: () -> Unit) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
-            // Per ora mostriamo il nome della lega come riferimento alla squadra
             Text(
                 text = "Squadra della lega:",
                 style = MaterialTheme.typography.bodyLarge,
@@ -55,7 +54,6 @@ fun LegaDetailScreen(idLega: Int, nomeLega: String, onBack: () -> Unit) {
             
             Spacer(modifier = Modifier.height(48.dp))
             
-            // Placeholder per i futuri contenuti (formazione, classifica, ecc.)
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)

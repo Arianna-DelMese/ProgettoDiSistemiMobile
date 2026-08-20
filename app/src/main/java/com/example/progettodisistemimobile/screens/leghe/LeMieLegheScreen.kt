@@ -1,4 +1,4 @@
-package com.example.progettodisistemimobile.screens
+package com.example.progettodisistemimobile.screens.leghe
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border

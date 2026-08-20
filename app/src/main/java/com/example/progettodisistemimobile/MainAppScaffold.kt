@@ -14,6 +14,9 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.progettodisistemimobile.screens.*
 import com.example.progettodisistemimobile.screens.home.HomeScreen
+import com.example.progettodisistemimobile.screens.leghe.LegaDetailScreen
+import com.example.progettodisistemimobile.screens.leghe.LeMieLegheScreen
+import com.example.progettodisistemimobile.screens.profilo.ProfiloScreen
 
 @Composable
 fun MainAppScaffold() {
