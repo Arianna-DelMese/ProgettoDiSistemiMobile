@@ -9,50 +9,39 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.progettodisistemimobile.data.MainViewModel
 import java.io.File
 
 @Composable
-fun ProfiloScreen(viewModel: MainViewModel = viewModel()) {
+fun ProfiloScreen(viewModel: MainViewModel) {
     val context = LocalContext.current
 
-    // Gestione sessione utente locale
-    var currentSessionUsername by rememberSaveable { mutableStateOf("MarioRossi") }
-
-    // Dati reattivi dal DB
-    val utente by viewModel.getUtente(currentSessionUsername).collectAsState(initial = null)
+    // SORGENTE UNICA: l'utente loggato viene dal ViewModel
+    val currentUsername by viewModel.currentUser.collectAsState()
+    
+    val utente by viewModel.getUtente(currentUsername).collectAsState(initial = null)
     val themeMode by viewModel.themeMode.collectAsState(initial = "Sistema")
 
-    // Stati per Cambia Nome
+    // Stati UI locali
     var newNameInput by remember { mutableStateOf("") }
     var isNameAvailable by remember { mutableStateOf(true) }
-
-    // Stati per Cambia Immagine
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
     var showImagePreview by remember { mutableStateOf(false) }
     var showImageSourceOptions by remember { mutableStateOf(false) }
 
-    // Funzione sicura per generare l'URI della fotocamera solo al click
+    // Funzione sicura per generare l'URI della fotocamera
     fun getTmpUri(): Uri? {
         return try {
             val tempFile = File(context.cacheDir, "profile_pic_preview.jpg")
             if (tempFile.exists()) tempFile.delete()
             tempFile.createNewFile()
-            FileProvider.getUriForFile(
-                context, 
-                "com.example.progettodisistemimobile.fileprovider", 
-                tempFile
-            )
-        } catch (e: Exception) {
-            null
-        }
+            FileProvider.getUriForFile(context, "com.example.progettodisistemimobile.fileprovider", tempFile)
+        } catch (e: Exception) { null }
     }
 
     val galleryLauncher = rememberLauncherForActivityResult(
@@ -65,8 +54,9 @@ fun ProfiloScreen(viewModel: MainViewModel = viewModel()) {
         onResult = { success -> if (success) showImagePreview = true }
     )
 
+    // Validazione in tempo reale
     LaunchedEffect(newNameInput) {
-        if (newNameInput.isNotEmpty() && newNameInput != currentSessionUsername) {
+        if (newNameInput.isNotEmpty() && newNameInput != currentUsername) {
             isNameAvailable = viewModel.isUsernameAvailable(newNameInput)
         } else {
             isNameAvailable = true
@@ -80,33 +70,32 @@ fun ProfiloScreen(viewModel: MainViewModel = viewModel()) {
             .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.Start
     ) {
-        // --- VISUALIZZAZIONE DATI (UserInfoSection.kt) ---
-        UserInfoSection(utente = utente, sessionUsername = currentSessionUsername)
+        // --- VISUALIZZAZIONE DATI ---
+        UserInfoSection(utente = utente, sessionUsername = currentUsername)
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // --- CAMBIA NOME (ChangeNameSection.kt) ---
+        // --- CAMBIA NOME ---
         ChangeNameSection(
             newNameInput = newNameInput,
             onNameChange = { newNameInput = it },
             isNameAvailable = isNameAvailable,
-            currentSessionUsername = currentSessionUsername,
+            currentSessionUsername = currentUsername,
             onConfirm = {
-                viewModel.aggiornaProfilo(currentSessionUsername, newNameInput, null)
-                currentSessionUsername = newNameInput
+                viewModel.aggiornaProfilo(currentUsername, newNameInput, null)
                 newNameInput = ""
             }
         )
 
         Spacer(modifier = Modifier.height(48.dp))
 
-        // --- CAMBIA IMMAGINE (ChangeImageSection.kt) ---
+        // --- CAMBIA IMMAGINE ---
         ChangeImageSection(
             showImagePreview = showImagePreview,
             selectedImageUri = selectedImageUri,
             onChooseSource = { showImageSourceOptions = true },
             onProceed = {
-                viewModel.aggiornaProfilo(currentSessionUsername, currentSessionUsername, selectedImageUri.toString())
+                viewModel.aggiornaProfilo(currentUsername, currentUsername, selectedImageUri.toString())
                 showImagePreview = false
                 selectedImageUri = null
             }
@@ -132,7 +121,7 @@ fun ProfiloScreen(viewModel: MainViewModel = viewModel()) {
 
         Spacer(modifier = Modifier.height(48.dp))
 
-        // --- TEMA (ThemeSelectionSection.kt) ---
+        // --- TEMA ---
         ThemeSelectionSection(
             themeMode = themeMode,
             onThemeChange = { viewModel.updateTheme(it) }

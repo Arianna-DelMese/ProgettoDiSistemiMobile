@@ -5,6 +5,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -12,6 +13,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.progettodisistemimobile.data.MainViewModel
 import com.example.progettodisistemimobile.screens.*
 import com.example.progettodisistemimobile.screens.home.HomeScreen
 import com.example.progettodisistemimobile.screens.leghe.LegaDetailScreen
@@ -21,6 +23,8 @@ import com.example.progettodisistemimobile.screens.profilo.ProfiloScreen
 @Composable
 fun MainAppScaffold() {
     val navController = rememberNavController()
+    // Creiamo il ViewModel qui per condividerlo tra tutte le schermate
+    val mainViewModel: MainViewModel = viewModel()
 
     Scaffold(
         bottomBar = {
@@ -33,10 +37,10 @@ fun MainAppScaffold() {
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(Screen.Home.route) {
-                HomeScreen()
+                HomeScreen(mainViewModel)
             }
             composable(Screen.LeMieLeghe.route) {
-                LeMieLegheScreen(navController)
+                LeMieLegheScreen(navController, mainViewModel)
             }
             composable(Screen.NuovaSquadra.route) {
                 NuovaSquadraScreen()
@@ -45,10 +49,9 @@ fun MainAppScaffold() {
                 ShopScreen()
             }
             composable(Screen.Profilo.route) {
-                ProfiloScreen()
+                ProfiloScreen(mainViewModel)
             }
             
-            // Pagina Dettaglio Lega
             composable(
                 route = Screen.DettaglioLega.route,
                 arguments = listOf(

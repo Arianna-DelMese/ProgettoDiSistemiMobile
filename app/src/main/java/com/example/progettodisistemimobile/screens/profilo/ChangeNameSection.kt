@@ -43,7 +43,7 @@ fun ChangeNameSection(
         
         if (!isNameAvailable && newNameInput.isNotEmpty()) {
             Text(
-                text = "Nome utente già scelto",
+                text = "Nome utente non disponibile",
                 color = MaterialTheme.colorScheme.error,
                 fontSize = 12.sp,
                 modifier = Modifier.padding(top = 4.dp)

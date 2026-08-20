@@ -4,13 +4,25 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val dao = AppDatabase.getDatabase(application).appDao()
     private val settingsManager = SettingsManager(application)
 
-    // --- STREAM DI DATI ---
+    // --- SESSIONE UTENTE GLOBALE ---
+    // Inizializziamo con l'utente di test
+    private val _currentUser = MutableStateFlow("MarioRossi")
+    val currentUser: StateFlow<String> = _currentUser.asStateFlow()
+
+    fun updateCurrentUser(newUsername: String) {
+        _currentUser.value = newUsername
+    }
+
+    // --- STREAM DI DATI (FLOW) ---
     val tuttiICantantiPerPunti: Flow<List<Cantante>> = dao.getCantantiPerPunti()
     val tuttiIBundle: Flow<List<Bundle>> = dao.getAllBundles()
     val themeMode: Flow<String> = settingsManager.themeMode
@@ -30,7 +42,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun aggiornaProfilo(vecchioNome: String, nuovoNome: String, nuovaFoto: String?) {
         viewModelScope.launch {
-            if (vecchioNome != nuovoNome) dao.updateNomeUtente(vecchioNome, nuovoNome)
+            if (vecchioNome != nuovoNome) {
+                dao.updateNomeUtente(vecchioNome, nuovoNome)
+                // Fondamentale: aggiorniamo la sessione globale per sincronizzare tutte le schermate
+                updateCurrentUser(nuovoNome)
+            }
             nuovaFoto?.let { dao.updateFotoProfilo(nuovoNome, it) }
         }
     }
