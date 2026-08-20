@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -18,13 +20,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import com.example.progettodisistemimobile.Screen
 import com.example.progettodisistemimobile.data.Lega
 import com.example.progettodisistemimobile.data.MainViewModel
 
 @Composable
-fun LeMieLegheScreen(viewModel: MainViewModel = viewModel()) {
-    // Per ora usiamo l'utente di test "MarioRossi"
+fun LeMieLegheScreen(navController: NavController, viewModel: MainViewModel = viewModel()) {
     val username = "MarioRossi"
     val leghe by viewModel.getLegheUtente(username).collectAsState(initial = emptyList())
 
@@ -34,10 +37,11 @@ fun LeMieLegheScreen(viewModel: MainViewModel = viewModel()) {
             .padding(16.dp)
     ) {
         Text(
-            text = "Le Mie Leghe",
+            text = "Le mie leghe",
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 16.dp)
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.padding(bottom = 20.dp)
         )
 
         if (leghe.isEmpty()) {
@@ -50,10 +54,12 @@ fun LeMieLegheScreen(viewModel: MainViewModel = viewModel()) {
                 modifier = Modifier.fillMaxSize()
             ) {
                 items(leghe) { lega ->
-                    LegaItem(lega = lega, onClick = {
-                        // Navigazione ai dettagli della lega (da implementare)
-                        println("Cliccato su: ${lega.nome_lega}")
-                    })
+                    LegaItem(
+                        lega = lega, 
+                        onClick = {
+                            navController.navigate(Screen.DettaglioLega.createRoute(lega.id_lega, lega.nome_lega))
+                        }
+                    )
                 }
             }
         }
@@ -66,50 +72,66 @@ fun LegaItem(lega: Lega, onClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() }
-            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(8.dp)),
-        shape = RoundedCornerShape(8.dp),
-        color = MaterialTheme.colorScheme.surface
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.outlineVariant,
+                shape = RoundedCornerShape(12.dp)
+            ),
+        shape = RoundedCornerShape(12.dp),
+        color = MaterialTheme.colorScheme.surface,
+        tonalElevation = 1.dp
     ) {
         Row(
             modifier = Modifier
-                .padding(12.dp)
+                .padding(16.dp)
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Immagine della Lega
             if (lega.immagine != null) {
                 AsyncImage(
                     model = lega.immagine,
-                    contentDescription = "Immagine lega ${lega.nome_lega}",
+                    contentDescription = null,
                     modifier = Modifier
                         .size(60.dp)
-                        .clip(RoundedCornerShape(4.dp)),
+                        .clip(RoundedCornerShape(8.dp)),
                     contentScale = ContentScale.Crop
                 )
             } else {
-                // Placeholder se non c'è immagine
                 Box(
                     modifier = Modifier
                         .size(60.dp)
-                        .background(MaterialTheme.colorScheme.primaryContainer, RoundedCornerShape(4.dp)),
+                        .background(MaterialTheme.colorScheme.primaryContainer, RoundedCornerShape(8.dp)),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
                         text = lega.nome_lega.take(1).uppercase(),
-                        style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.primary
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Bold
                     )
                 }
             }
 
             Spacer(modifier = Modifier.width(16.dp))
 
-            // Nome della Lega
-            Text(
-                text = lega.nome_lega,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurface
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = lega.nome_lega,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = "Tocca per vedere i dettagli",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.Gray
+                )
+            }
+
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.outline
             )
         }
     }

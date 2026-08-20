@@ -7,19 +7,17 @@ import androidx.compose.ui.graphics.vector.ImageVector
 sealed interface Screen {
     val route: String
     val label: String
-    val icon: ImageVector
+    val icon: ImageVector?
 
     data object Home : Screen {
         override val route = "home"
         override val label = "Home"
-        // Casetta
         override val icon = Icons.Default.Home
     }
 
     data object LeMieLeghe : Screen {
         override val route = "leghe"
         override val label = "Le mie leghe"
-        // Stella (per la colorazione, si gestisce nel tema, ma l'icona è Star)
         override val icon = Icons.Default.Star
     }
 
@@ -39,6 +37,14 @@ sealed interface Screen {
         override val route = "profilo"
         override val label = "Profilo"
         override val icon = Icons.Default.Person
+    }
+
+    data object DettaglioLega : Screen {
+        override val route = "dettaglio_lega/{idLega}/{nomeLega}"
+        override val label = "Dettaglio Lega"
+        override val icon = null
+        
+        fun createRoute(idLega: Int, nomeLega: String) = "dettaglio_lega/$idLega/$nomeLega"
     }
 }
 

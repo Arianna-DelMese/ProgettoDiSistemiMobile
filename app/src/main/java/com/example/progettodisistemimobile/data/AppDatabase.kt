@@ -41,7 +41,7 @@ abstract class AppDatabase : RoomDatabase() {
         suspend fun populateDatabase(dao: AppDao) {
             // --- POPOLAMENTO CANTANTI (Classifiche originali corrette) ---
             val cantanti = listOf(
-                Cantante("Marco Mengoni", "Due Vite", 20, 15, "Lisa", "Money", 1, 13, null, 12, 29), // Spostato in Serata 2 (pos 13)
+                Cantante("Marco Mengoni", "Due Vite", 20, 15, "Lisa", "Money", 1, 13, null, 12, 29),
                 Cantante("Sal Da Vinci", "Per Sempre Sì", 18, 9, "Bobby Solo", "Una Lacrima sul Viso", 2, 5, null, 29, 20),
                 Cantante("Mr. Rain", "Supereroi", 15, 12, "Zucchero", "Funky Gallo", 3, 15, null, 11, 22),
                 Cantante("Lady Gaga", "Judas", 25, 20, "Queen", "Radio Gaga", 4, 6, null, 1, 7),
@@ -52,7 +52,7 @@ abstract class AppDatabase : RoomDatabase() {
                 Cantante("Fausto Leali", "Mi Manchi", 10, 9, "Arisa", "Sincerità", 9, 7, null, 27, 24),
                 Cantante("Elvis Presley", "Love Me Tender", 25, 20, "Jin", "Super Toona", 10, 10, null, 10, 13),
                 Cantante("Anna Oxa", "Ti Lascerò", 15, 10, "Pupo", "Gelato al Chioccolato", 11, 9, null, 2, 25),
-                Cantante("Cristiano Malgioglio", "Fernando", 18, 12, "Jungkook", "Seven", 12, 3, null, 9, 1),
+                Cantante("Cristiano Malgiolio", "Fernando", 18, 12, "Jungkook", "Seven", 12, 3, null, 9, 1),
                 Cantante("Simon Le Bon", "Wild Boys", 10, 5, "Orietta Berti", "Finché la Barca Va", 13, 2, null, 3, 3),
                 Cantante("I Cugini di Campagna", "Anima Mia", 18, 13, "Riccardo Cocciante", "Cervo a Primavera", 14, 8, null, 25, 14),
                 Cantante("Psy", "Gangnam Style", 17, 10, "SUGA", "That, That", 15, 1, null, 14, 16),
@@ -76,29 +76,35 @@ abstract class AppDatabase : RoomDatabase() {
 
             // --- POPOLAMENTO BUNDLE ---
             val bundles = listOf(
-                Bundle(1, 10, 1),
-                Bundle(2, 25, 2),
-                Bundle(3, 50, 4),
-                Bundle(4, 100, 8),
-                Bundle(5, 200, 15),
-                Bundle(6, 500, 35)
+                Bundle(1, 10, 1), Bundle(2, 25, 2), Bundle(3, 50, 4),
+                Bundle(4, 100, 8), Bundle(5, 200, 15), Bundle(6, 500, 35)
             )
             bundles.forEach { dao.insertBundle(it) }
 
             // --- DATI PROVVISORI PER TEST ---
             val testUser = Utente("MarioRossi", "mario@example.com", "password123", null, 150, null, null)
             dao.insertUtente(testUser)
-            val idLega = dao.insertLega(Lega(0, "Lega degli Esperti", null, "Una lega per veri appassionati", true, 41.89, 12.49))
-            val idSquadra = dao.joinLega(UtenteInLega(0, "MarioRossi", idLega.toInt(), true, 45))
+
+            // Creazione di più leghe per testare la schermata "Le Mie Leghe"
+            val idL1 = dao.insertLega(Lega(0, "Lega degli Esperti", null, "Una lega per veri appassionati", true, 41.89, 12.49))
+            val idL2 = dao.insertLega(Lega(0, "Amici di Sanremo", null, "Solo per divertimento", true, 45.44, 9.14))
+            val idL3 = dao.insertLega(Lega(0, "Lega Mondiale", null, "Sfida globale", true, null, null))
             
+            // Iscrizione di MarioRossi alle leghe
+            dao.joinLega(UtenteInLega(0, "MarioRossi", idL1.toInt(), true, 45))
+            dao.joinLega(UtenteInLega(0, "MarioRossi", idL2.toInt(), false, 120))
+            dao.joinLega(UtenteInLega(0, "MarioRossi", idL3.toInt(), true, 10))
+            
+            // Popoliamo una squadra
+            val idSquadra1 = 1 // Sappiamo che è il primo inserito
             val composizione = listOf(
-                ComposizioneSquadra(idSquadra.toInt(), "Marco Mengoni", 0),
-                ComposizioneSquadra(idSquadra.toInt(), "Cristiano Malgioglio", 1),
-                ComposizioneSquadra(idSquadra.toInt(), "Sabrina Carpenter", 2),
-                ComposizioneSquadra(idSquadra.toInt(), "Mahmood", 3),
-                ComposizioneSquadra(idSquadra.toInt(), "Vasco Rossi", 4),
-                ComposizioneSquadra(idSquadra.toInt(), "Mina", 5),
-                ComposizioneSquadra(idSquadra.toInt(), "Anna Oxa", 6)
+                ComposizioneSquadra(idSquadra1, "Marco Mengoni", 0),
+                ComposizioneSquadra(idSquadra1, "Cristiano Malgiolio", 1),
+                ComposizioneSquadra(idSquadra1, "Sabrina Carpenter", 2),
+                ComposizioneSquadra(idSquadra1, "Mahmood", 3),
+                ComposizioneSquadra(idSquadra1, "Vasco Rossi", 4),
+                ComposizioneSquadra(idSquadra1, "Mina", 5),
+                ComposizioneSquadra(idSquadra1, "Anna Oxa", 6)
             )
             composizione.forEach { dao.insertComposizione(it) }
         }

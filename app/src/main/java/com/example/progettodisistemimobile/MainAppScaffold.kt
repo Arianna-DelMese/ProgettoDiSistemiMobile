@@ -6,10 +6,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.progettodisistemimobile.screens.*
 import com.example.progettodisistemimobile.screens.home.HomeScreen
 
@@ -22,7 +24,6 @@ fun MainAppScaffold() {
             BottomNavigationBar(navController)
         }
     ) { innerPadding ->
-        // Qui definiamo quali pagine caricare
         NavHost(
             navController = navController,
             startDestination = Screen.Home.route,
@@ -32,7 +33,7 @@ fun MainAppScaffold() {
                 HomeScreen()
             }
             composable(Screen.LeMieLeghe.route) {
-                LeMieLegheScreen()
+                LeMieLegheScreen(navController)
             }
             composable(Screen.NuovaSquadra.route) {
                 NuovaSquadraScreen()
@@ -42,6 +43,23 @@ fun MainAppScaffold() {
             }
             composable(Screen.Profilo.route) {
                 ProfiloScreen()
+            }
+            
+            // Pagina Dettaglio Lega
+            composable(
+                route = Screen.DettaglioLega.route,
+                arguments = listOf(
+                    navArgument("idLega") { type = NavType.IntType },
+                    navArgument("nomeLega") { type = NavType.StringType }
+                )
+            ) { backStackEntry ->
+                val idLega = backStackEntry.arguments?.getInt("idLega") ?: 0
+                val nomeLega = backStackEntry.arguments?.getString("nomeLega") ?: ""
+                LegaDetailScreen(
+                    idLega = idLega, 
+                    nomeLega = nomeLega, 
+                    onBack = { navController.popBackStack() }
+                )
             }
         }
     }
@@ -58,7 +76,7 @@ fun BottomNavigationBar(navController: NavHostController) {
 
             NavigationBarItem(
                 selected = isSelected,
-                alwaysShowLabel = true, // Forza il testo a restare sempre visibile
+                alwaysShowLabel = true,
                 onClick = {
                     if (currentRoute != screen.route) {
                         navController.navigate(screen.route) {
@@ -69,13 +87,9 @@ fun BottomNavigationBar(navController: NavHostController) {
                     }
                 },
                 colors = NavigationBarItemDefaults.colors(
-                    // Colore dell'icona quando selezionata
                     selectedIconColor = MaterialTheme.colorScheme.onPrimary,
-                    // Colore del cerchio/pillola dietro l'icona
                     indicatorColor = MaterialTheme.colorScheme.primary,
-                    // Colore del testo quando selezionato
                     selectedTextColor = MaterialTheme.colorScheme.primary,
-                    // Colore quando NON è selezionato
                     unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
                     unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
                 ),
@@ -85,11 +99,10 @@ fun BottomNavigationBar(navController: NavHostController) {
                         style = MaterialTheme.typography.labelSmall,
                         textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                         maxLines = 2,
-                        // Se il testo è selezionato, lo rendiamo in grassetto
                         fontWeight = if (isSelected) androidx.compose.ui.text.font.FontWeight.Bold else null
                     )
                 },
-                icon = { Icon(screen.icon, contentDescription = screen.label) }
+                icon = { screen.icon?.let { Icon(it, contentDescription = screen.label) } }
             )
         }
     }
