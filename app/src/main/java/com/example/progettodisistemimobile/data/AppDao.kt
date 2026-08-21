@@ -73,8 +73,14 @@ interface AppDao {
     """)
     fun getLeghePerUtente(username: String): Flow<List<Lega>>
 
-    @Query("SELECT * FROM utente_in_lega WHERE id_lega = :idLega ORDER BY punti DESC")
-    fun getClassificaLega(idLega: Int): Flow<List<UtenteInLega>>
+    @Query("""
+        SELECT u.*, c.nome_cantante as nome_capitano
+        FROM utente_in_lega u
+        LEFT JOIN composizione_squadra c ON u.nome_utente = c.nome_utente AND u.id_lega = c.id_lega AND c.ruolo = 0
+        WHERE u.id_lega = :idLega
+        ORDER BY u.punti DESC
+    """)
+    fun getClassificaLegaConCapitano(idLega: Int): Flow<List<UserRankingItem>>
 
     @Query("SELECT * FROM utente_in_lega WHERE id_lega = :idLega AND stato = 1 LIMIT 1")
     suspend fun getCreatoreLega(idLega: Int): UtenteInLega?

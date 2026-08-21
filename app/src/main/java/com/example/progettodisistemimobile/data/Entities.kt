@@ -3,6 +3,8 @@ package com.example.progettodisistemimobile.data
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
+import androidx.room.ColumnInfo
+import androidx.room.Embedded
 
 @Entity(tableName = "utente")
 data class Utente(
@@ -120,4 +122,10 @@ data class OffertaUtente(
     val nome_utente: String,
     val id_bundle: Int,
     val stato: Boolean
+)
+
+// Classe di supporto per la classifica utenti con nome del capitano
+data class UserRankingItem(
+    @Embedded val utenteInLega: UtenteInLega,
+    @ColumnInfo(name = "nome_capitano") val nomeCapitano: String?
 )

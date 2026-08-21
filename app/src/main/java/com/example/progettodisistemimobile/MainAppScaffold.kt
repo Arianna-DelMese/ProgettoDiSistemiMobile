@@ -18,6 +18,7 @@ import com.example.progettodisistemimobile.screens.*
 import com.example.progettodisistemimobile.screens.home.HomeScreen
 import com.example.progettodisistemimobile.screens.leghe.LegaDetailScreen
 import com.example.progettodisistemimobile.screens.leghe.LeMieLegheScreen
+import com.example.progettodisistemimobile.screens.leghe.ModificaSquadraScreen
 import com.example.progettodisistemimobile.screens.profilo.ProfiloScreen
 
 @Composable
@@ -64,6 +65,21 @@ fun MainAppScaffold() {
                 LegaDetailScreen(
                     idLega = idLega, 
                     nomeLega = nomeLega, 
+                    onBack = { navController.popBackStack() },
+                    navController = navController,
+                    viewModel = mainViewModel
+                )
+            }
+
+            composable(
+                route = Screen.ModificaSquadra.route,
+                arguments = listOf(
+                    navArgument("idLega") { type = NavType.IntType }
+                )
+            ) { backStackEntry ->
+                val idLega = backStackEntry.arguments?.getInt("idLega") ?: 0
+                ModificaSquadraScreen(
+                    idLega = idLega,
                     onBack = { navController.popBackStack() }
                 )
             }
@@ -82,7 +98,7 @@ fun BottomNavigationBar(navController: NavHostController) {
 
             NavigationBarItem(
                 selected = isSelected,
-                alwaysShowLabel = true,
+                alwaysShowLabel = true, // Forza il testo a restare sempre visibile
                 onClick = {
                     if (currentRoute != screen.route) {
                         navController.navigate(screen.route) {

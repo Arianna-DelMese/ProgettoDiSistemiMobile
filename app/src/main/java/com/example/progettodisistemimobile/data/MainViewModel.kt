@@ -6,18 +6,16 @@ import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val dao = AppDatabase.getDatabase(application).appDao()
     private val settingsManager = SettingsManager(application)
 
-    // --- SESSIONE UTENTE PERSISTENTE ---
+    // --- SESSIONE UTENTE ---
     private val _currentUser = MutableStateFlow("MarioRossi")
     val currentUser: StateFlow<String> = _currentUser.asStateFlow()
 
@@ -45,7 +43,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun getLegheUtente(username: String) = dao.getLeghePerUtente(username)
     fun getLega(idLega: Int) = dao.getLegaById(idLega)
     fun getDatiPartecipazione(idLega: Int, username: String) = dao.getUtenteInLega(idLega, username)
-    fun getClassificaLega(idLega: Int) = dao.getClassificaLega(idLega)
+    fun getClassificaLegaConCapitano(idLega: Int) = dao.getClassificaLegaConCapitano(idLega)
     fun getSquadra(idLega: Int, username: String) = dao.getSquadraUtenteInLega(idLega, username)
 
     // --- OPERAZIONI UTENTE ---

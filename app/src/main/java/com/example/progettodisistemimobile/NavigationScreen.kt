@@ -39,12 +39,21 @@ sealed interface Screen {
         override val icon = Icons.Default.Person
     }
 
+    // Pagine di dettaglio (non presenti nella bottom bar)
     data object DettaglioLega : Screen {
         override val route = "dettaglio_lega/{idLega}/{nomeLega}"
         override val label = "Dettaglio Lega"
         override val icon = null
         
         fun createRoute(idLega: Int, nomeLega: String) = "dettaglio_lega/$idLega/$nomeLega"
+    }
+
+    data object ModificaSquadra : Screen {
+        override val route = "modifica_squadra/{idLega}"
+        override val label = "Modifica Squadra"
+        override val icon = null
+
+        fun createRoute(idLega: Int) = "modifica_squadra/$idLega"
     }
 }
 
