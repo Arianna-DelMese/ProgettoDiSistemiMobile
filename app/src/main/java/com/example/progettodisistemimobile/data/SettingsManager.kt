@@ -11,14 +11,25 @@ private val Context.dataStore by preferencesDataStore(name = "settings")
 
 class SettingsManager(private val context: Context) {
     private val themeKey = stringPreferencesKey("theme_mode")
+    private val userKey = stringPreferencesKey("current_user")
 
     val themeMode: Flow<String> = context.dataStore.data.map { preferences ->
         preferences[themeKey] ?: "Sistema"
     }
 
+    val currentUser: Flow<String> = context.dataStore.data.map { preferences ->
+        preferences[userKey] ?: "MarioRossi"
+    }
+
     suspend fun setThemeMode(mode: String) {
         context.dataStore.edit { preferences ->
             preferences[themeKey] = mode
+        }
+    }
+
+    suspend fun setCurrentUser(username: String) {
+        context.dataStore.edit { preferences ->
+            preferences[userKey] = username
         }
     }
 }

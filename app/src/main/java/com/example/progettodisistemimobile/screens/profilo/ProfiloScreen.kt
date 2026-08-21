@@ -21,13 +21,14 @@ import java.io.File
 fun ProfiloScreen(viewModel: MainViewModel) {
     val context = LocalContext.current
 
-    // SORGENTE UNICA: l'utente loggato viene dal ViewModel
+    // SORGENTE UNICA PERSISTENTE: leggiamo l'utente correntemente loggato dal ViewModel
     val currentUsername by viewModel.currentUser.collectAsState()
     
+    // Dati reattivi dal DB basati sull'utente della sessione
     val utente by viewModel.getUtente(currentUsername).collectAsState(initial = null)
     val themeMode by viewModel.themeMode.collectAsState(initial = "Sistema")
 
-    // Stati UI locali
+    // Stati UI per le modifiche
     var newNameInput by remember { mutableStateOf("") }
     var isNameAvailable by remember { mutableStateOf(true) }
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
@@ -54,7 +55,7 @@ fun ProfiloScreen(viewModel: MainViewModel) {
         onResult = { success -> if (success) showImagePreview = true }
     )
 
-    // Validazione in tempo reale
+    // Validazione disponibilità nome
     LaunchedEffect(newNameInput) {
         if (newNameInput.isNotEmpty() && newNameInput != currentUsername) {
             isNameAvailable = viewModel.isUsernameAvailable(newNameInput)
@@ -70,7 +71,7 @@ fun ProfiloScreen(viewModel: MainViewModel) {
             .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.Start
     ) {
-        // --- VISUALIZZAZIONE DATI ---
+        // --- VISUALIZZAZIONE DATI (Usa UserInfoSection.kt) ---
         UserInfoSection(utente = utente, sessionUsername = currentUsername)
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -83,6 +84,7 @@ fun ProfiloScreen(viewModel: MainViewModel) {
             currentSessionUsername = currentUsername,
             onConfirm = {
                 viewModel.aggiornaProfilo(currentUsername, newNameInput, null)
+                // Non serve aggiornare lo stato locale, lo farà il ViewModel globalmente
                 newNameInput = ""
             }
         )

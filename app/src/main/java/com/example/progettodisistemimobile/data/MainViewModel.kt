@@ -1,51 +1,72 @@
 package com.example.progettodisistemimobile.data
 
 import android.app.Application
+import android.content.Intent
+import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val dao = AppDatabase.getDatabase(application).appDao()
     private val settingsManager = SettingsManager(application)
 
-    // --- SESSIONE UTENTE GLOBALE ---
+    // --- SESSIONE UTENTE PERSISTENTE ---
     private val _currentUser = MutableStateFlow("MarioRossi")
     val currentUser: StateFlow<String> = _currentUser.asStateFlow()
 
-    fun updateCurrentUser(newUsername: String) {
-        _currentUser.value = newUsername
-    }
-
-    // --- STREAM DI DATI (FLOW) ---
-    val tuttiICantantiPerPunti: Flow<List<Cantante>> = dao.getCantantiPerPunti()
-    val tuttiIBundle: Flow<List<Bundle>> = dao.getAllBundles()
-    val themeMode: Flow<String> = settingsManager.themeMode
-
-    fun getTokens(username: String): Flow<Int> = dao.getTokenUtente(username)
-    fun getUtente(username: String): Flow<Utente?> = dao.getUtenteFlow(username)
-    fun getLegheUtente(username: String): Flow<List<Lega>> = dao.getLeghePerUtente(username)
-    fun getClassificaLega(idLega: Int): Flow<List<UtenteInLega>> = dao.getClassificaLega(idLega)
-    fun getSquadra(idLega: Int, username: String): Flow<List<Cantante>> = dao.getSquadraUtenteInLega(idLega, username)
-
-    // --- OPERAZIONI UTENTE ---
-    fun registraUtente(nome: String, email: String, pass: String) {
+    init {
         viewModelScope.launch {
-            dao.insertUtente(Utente(nome, email, pass, null, 150, null, null))
+            // All'avvio, recuperiamo l'ultimo utente salvato
+            val savedUser = settingsManager.currentUser.first()
+            _currentUser.value = savedUser
         }
     }
 
+    fun updateCurrentUser(newUsername: String) {
+        viewModelScope.launch {
+            _currentUser.value = newUsername
+            settingsManager.setCurrentUser(newUsername)
+        }
+    }
+
+    // --- STREAM DI DATI ---
+    val tuttiICantantiPerPunti = dao.getCantantiPerPunti()
+    val tuttiIBundle = dao.getAllBundles()
+    val themeMode = settingsManager.themeMode
+
+    fun getTokens(username: String) = dao.getTokenUtente(username)
+    fun getUtente(username: String) = dao.getUtenteFlow(username)
+    fun getLegheUtente(username: String) = dao.getLeghePerUtente(username)
+    fun getClassificaLega(idLega: Int) = dao.getClassificaLega(idLega)
+    fun getSquadra(idLega: Int, username: String) = dao.getSquadraUtenteInLega(idLega, username)
+
+    // --- OPERAZIONI UTENTE ---
     fun aggiornaProfilo(vecchioNome: String, nuovoNome: String, nuovaFoto: String?) {
         viewModelScope.launch {
             if (vecchioNome != nuovoNome) {
                 dao.updateNomeUtente(vecchioNome, nuovoNome)
                 updateCurrentUser(nuovoNome)
             }
-            nuovaFoto?.let { dao.updateFotoProfilo(nuovoNome, it) }
+            nuovaFoto?.let { photoUri ->
+                // Rendiamo permanente il permesso di leggere l'immagine scelta dalla galleria
+                try {
+                    val uri = Uri.parse(photoUri)
+                    if (photoUri.startsWith("content://")) {
+                        getApplication<Application>().contentResolver.takePersistableUriPermission(
+                            uri,
+                            Intent.FLAG_GRANT_READ_URI_PERMISSION
+                        )
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+                dao.updateFotoProfilo(nuovoNome, photoUri)
+            }
         }
     }
 
@@ -65,12 +86,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    // --- LOGICA ACQUISTO BUNDLE ---
     fun acquistaBundle(username: String, bundle: Bundle) {
         viewModelScope.launch {
             val giaAcquistato = dao.getOffertaUtente(username, bundle.id_bundle)
             val bonus = if (giaAcquistato == null) 1.2 else 1.0
-
             dao.aggiungiToken(username, (bundle.token * bonus).toInt())
             if (giaAcquistato == null) {
                 dao.registraAcquistoBundle(OffertaUtente(username, bundle.id_bundle, true))
