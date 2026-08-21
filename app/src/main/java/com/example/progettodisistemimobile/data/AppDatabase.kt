@@ -39,7 +39,7 @@ abstract class AppDatabase : RoomDatabase() {
         }
 
         suspend fun populateDatabase(dao: AppDao) {
-            // --- POPOLAMENTO CANTANTI (Classifiche originali corrette) ---
+            // --- POPOLAMENTO CANTANTI (Classifiche originali preservate) ---
             val cantanti = listOf(
                 Cantante("Marco Mengoni", "Due Vite", 20, 15, "Lisa", "Money", 1, 13, null, 12, 29), // Spostato in Serata 2 (pos 13)
                 Cantante("Sal Da Vinci", "Per Sempre Sì", 18, 9, "Bobby Solo", "Una Lacrima sul Viso", 2, 5, null, 29, 20),
@@ -74,53 +74,54 @@ abstract class AppDatabase : RoomDatabase() {
             )
             cantanti.forEach { dao.insertCantante(it) }
 
-            // --- POPOLAMENTO BUNDLE ---
+            // --- BUNDLE ---
             val bundles = listOf(
                 Bundle(1, 10, 1), Bundle(2, 25, 2), Bundle(3, 50, 4),
                 Bundle(4, 100, 8), Bundle(5, 200, 15), Bundle(6, 500, 35)
             )
             bundles.forEach { dao.insertBundle(it) }
 
-            // --- DATI PROVVISORI PER TEST ---
-            dao.insertUtente(Utente("MarioRossi", "mario@example.com", "password123", null, 150, null, null))
-            dao.insertUtente(Utente("LuigiVerdi", "luigi@example.com", "password456", null, 50, null, null))
-            dao.insertUtente(Utente("SofiaBianchi", "sofia@example.com", "password789", null, 200, null, null))
-            dao.insertUtente(Utente("MarcoNeri", "marco@example.com", "passwordabc", null, 100, null, null))
-            dao.insertUtente(Utente("ElenaGialli", "elena@example.com", "passworddef", null, 80, null, null))
-            dao.insertUtente(Utente("DavideRossi", "davide@example.com", "passwordghi", null, 120, null, null))
+            // --- UTENTI ---
+            val utenti = listOf(
+                Utente("MarioRossi", "mario@example.com", "pass", null, 150, null, null),
+                Utente("LuigiVerdi", "luigi@example.com", "pass", null, 50, null, null),
+                Utente("SofiaBianchi", "sofia@example.com", "pass", null, 200, null, null),
+                Utente("MarcoNeri", "marco@example.com", "pass", null, 100, null, null),
+                Utente("ElenaGialli", "elena@example.com", "pass", null, 80, null, null),
+                Utente("DavideRossi", "davide@example.com", "pass", null, 120, null, null)
+            )
+            utenti.forEach { dao.insertUtente(it) }
 
-            val idL1 = dao.insertLega(Lega(0, "Lega degli Esperti", null, "Una lega per veri appassionati", true, 41.89, 12.49))
-            val idL2 = dao.insertLega(Lega(0, "Amici di Sanremo", null, "Solo per divertimento", true, 45.44, 9.14))
-            val idL3 = dao.insertLega(Lega(0, "Lega Mondiale", null, "Sfida globale", true, null, null))
+            // --- LEGHE ---
+            val idL1 = dao.insertLega(Lega(0, "Lega degli Esperti", null, "Una lega per veri appassionati", true, 41.89, 12.49)).toInt()
+            val idL2 = dao.insertLega(Lega(0, "Amici di Sanremo", null, "Solo per divertimento", true, 45.44, 9.14)).toInt()
+            val idL3 = dao.insertLega(Lega(0, "Lega Mondiale", null, "Sfida globale", true, null, null)).toInt()
 
-            // Iscrizione alle leghe (Chiave composta: nome_utente + id_lega)
+            // --- ISCRIZIONI E SQUADRE (Almeno 3 per lega) ---
+
             // Lega 1: Mario, Luigi, Sofia
-            dao.joinLega(UtenteInLega("MarioRossi", idL1.toInt(), true, 45))
-            dao.joinLega(UtenteInLega("LuigiVerdi", idL1.toInt(), false, 30))
-            dao.joinLega(UtenteInLega("SofiaBianchi", idL1.toInt(), false, 60))
+            val l1Users = listOf("MarioRossi", "LuigiVerdi", "SofiaBianchi")
+            l1Users.forEach { user ->
+                dao.joinLega(UtenteInLega(user, idL1, user == "MarioRossi", (0..100).random()))
+                val sq = cantanti.shuffled().take(7)
+                sq.forEachIndexed { i, c -> dao.insertComposizione(ComposizioneSquadra(user, idL1, c.nome_cantante, i)) }
+            }
 
             // Lega 2: Mario, Marco, Elena
-            dao.joinLega(UtenteInLega("MarioRossi", idL2.toInt(), false, 120))
-            dao.joinLega(UtenteInLega("MarcoNeri", idL2.toInt(), true, 90))
-            dao.joinLega(UtenteInLega("ElenaGialli", idL2.toInt(), false, 75))
+            val l2Users = listOf("MarioRossi", "MarcoNeri", "ElenaGialli")
+            l2Users.forEach { user ->
+                dao.joinLega(UtenteInLega(user, idL2, user == "MarcoNeri", (0..100).random()))
+                val sq = cantanti.shuffled().take(7)
+                sq.forEachIndexed { i, c -> dao.insertComposizione(ComposizioneSquadra(user, idL2, c.nome_cantante, i)) }
+            }
 
             // Lega 3: Mario, Davide, Luigi, Sofia
-            dao.joinLega(UtenteInLega("MarioRossi", idL3.toInt(), true, 10))
-            dao.joinLega(UtenteInLega("DavideRossi", idL3.toInt(), false, 40))
-            dao.joinLega(UtenteInLega("LuigiVerdi", idL3.toInt(), false, 25))
-            dao.joinLega(UtenteInLega("SofiaBianchi", idL3.toInt(), false, 55))
-
-            // Popoliamo la squadra (Chiave composta: nome_utente + id_lega + nome_cantante)
-            val composizione = listOf(
-                ComposizioneSquadra("MarioRossi", idL1.toInt(), "Marco Mengoni", 0),
-                ComposizioneSquadra("MarioRossi", idL1.toInt(), "Cristiano Malgiolio", 1),
-                ComposizioneSquadra("MarioRossi", idL1.toInt(), "Sabrina Carpenter", 2),
-                ComposizioneSquadra("MarioRossi", idL1.toInt(), "Mahmood", 3),
-                ComposizioneSquadra("MarioRossi", idL1.toInt(), "Vasco Rossi", 4),
-                ComposizioneSquadra("MarioRossi", idL1.toInt(), "Mina", 5),
-                ComposizioneSquadra("MarioRossi", idL1.toInt(), "Anna Oxa", 6)
-            )
-            composizione.forEach { dao.insertComposizione(it) }
+            val l3Users = listOf("MarioRossi", "DavideRossi", "LuigiVerdi", "SofiaBianchi")
+            l3Users.forEach { user ->
+                dao.joinLega(UtenteInLega(user, idL3, user == "MarioRossi", (0..100).random()))
+                val sq = cantanti.shuffled().take(7)
+                sq.forEachIndexed { i, c -> dao.insertComposizione(ComposizioneSquadra(user, idL3, c.nome_cantante, i)) }
+            }
         }
     }
 

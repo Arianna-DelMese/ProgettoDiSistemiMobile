@@ -2,6 +2,8 @@ package com.example.progettodisistemimobile.screens.leghe
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -17,7 +19,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
+import com.example.progettodisistemimobile.data.Cantante
 import com.example.progettodisistemimobile.data.MainViewModel
+import com.example.progettodisistemimobile.data.UtenteInLega
+import com.example.progettodisistemimobile.screens.home.CantanteRow
 
 @Composable
 fun LegaDetailScreen(
@@ -29,6 +34,11 @@ fun LegaDetailScreen(
     val currentUsername by viewModel.currentUser.collectAsState()
     val lega by viewModel.getLega(idLega).collectAsState(initial = null)
     val partecipazione by viewModel.getDatiPartecipazione(idLega, currentUsername).collectAsState(initial = null)
+    val squadra by viewModel.getSquadra(idLega, currentUsername).collectAsState(initial = emptyList())
+    val classifica by viewModel.getClassificaLega(idLega).collectAsState(initial = emptyList())
+
+    var selectedTabIndex by remember { mutableIntStateOf(0) }
+    val tabs = listOf("Squadra", "Classifica")
 
     Column(
         modifier = Modifier
@@ -37,34 +47,25 @@ fun LegaDetailScreen(
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.Start
     ) {
-        // --- HEADER PERSONALIZZATO ---
+        // --- HEADER ---
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Pulsante Indietro
             IconButton(onClick = onBack, modifier = Modifier.padding(end = 4.dp)) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Indietro"
-                )
+                Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Indietro")
             }
 
-            // Immagine Lega
             if (lega?.immagine != null) {
                 AsyncImage(
                     model = lega?.immagine,
                     contentDescription = null,
-                    modifier = Modifier
-                        .size(45.dp)
-                        .clip(RoundedCornerShape(8.dp)),
+                    modifier = Modifier.size(45.dp).clip(RoundedCornerShape(8.dp)),
                     contentScale = ContentScale.Crop
                 )
             } else {
                 Box(
-                    modifier = Modifier
-                        .size(45.dp)
-                        .background(MaterialTheme.colorScheme.primaryContainer, RoundedCornerShape(8.dp)),
+                    modifier = Modifier.size(45.dp).background(MaterialTheme.colorScheme.primaryContainer, RoundedCornerShape(8.dp)),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
@@ -78,7 +79,6 @@ fun LegaDetailScreen(
 
             Spacer(modifier = Modifier.width(12.dp))
 
-            // Nome Lega - Permette l'andata a capo
             Text(
                 text = lega?.nome_lega ?: nomeLega,
                 fontSize = 18.sp,
@@ -86,19 +86,12 @@ fun LegaDetailScreen(
                 modifier = Modifier.weight(1f)
             )
 
-            // Bottoni Azione
             Row {
-                TextButton(
-                    onClick = { /* Azione Invita */ },
-                    contentPadding = PaddingValues(horizontal = 8.dp)
-                ) {
+                TextButton(onClick = { /* Azione Invita */ }, contentPadding = PaddingValues(horizontal = 8.dp)) {
                     Text("Invita", fontSize = 14.sp)
                 }
                 if (partecipazione?.stato == true) {
-                    TextButton(
-                        onClick = { /* Azione Modifica */ },
-                        contentPadding = PaddingValues(horizontal = 8.dp)
-                    ) {
+                    TextButton(onClick = { /* Azione Modifica */ }, contentPadding = PaddingValues(horizontal = 8.dp)) {
                         Text("Modifica", fontSize = 14.sp)
                     }
                 }
@@ -109,13 +102,9 @@ fun LegaDetailScreen(
         HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.outlineVariant)
         Spacer(modifier = Modifier.height(16.dp))
 
-        // --- SEZIONE PUNTI UTENTE ---
+        // --- PUNTI UTENTE ---
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                text = "I miei punti: ",
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Medium
-            )
+            Text(text = "I miei punti: ", fontSize = 18.sp, fontWeight = FontWeight.Medium)
             Text(
                 text = "${partecipazione?.punti ?: 0} PT",
                 fontSize = 20.sp,
@@ -124,19 +113,91 @@ fun LegaDetailScreen(
             )
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
-        ) {
-            Box(modifier = Modifier.padding(24.dp).fillMaxWidth(), contentAlignment = Alignment.Center) {
-                Text(
-                    text = "Dettagli squadra e classifiche della lega appariranno qui.",
-                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                    color = Color.Gray
+        // --- TABS ---
+        TabRow(selectedTabIndex = selectedTabIndex, containerColor = Color.Transparent) {
+            tabs.forEachIndexed { index, title ->
+                Tab(
+                    selected = selectedTabIndex == index,
+                    onClick = { selectedTabIndex = index },
+                    text = { Text(title) }
                 )
             }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // --- CONTENUTO DINAMICO ---
+        Box(modifier = Modifier.weight(1f)) {
+            if (selectedTabIndex == 0) {
+                TeamView(squadra)
+            } else {
+                RankingView(classifica)
+            }
+        }
+    }
+}
+
+@Composable
+fun TeamView(squadra: List<Cantante>) {
+    if (squadra.isEmpty()) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Text("Non hai ancora creato una squadra per questa lega.", color = Color.Gray)
+        }
+    } else {
+        LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            itemsIndexed(squadra) { index, cantante ->
+                val roleLabel = when (index) {
+                    0 -> "CAPITANO"
+                    in 1..4 -> "TITOLARE"
+                    else -> "RISERVA"
+                }
+                val roleColor = when (index) {
+                    0 -> Color(0xFFFFD700)
+                    in 1..4 -> MaterialTheme.colorScheme.primary
+                    else -> Color.Gray
+                }
+
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
+                ) {
+                    Row(
+                        modifier = Modifier.padding(12.dp).fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(text = roleLabel, fontSize = 10.sp, fontWeight = FontWeight.Black, color = roleColor)
+                            Text(text = cantante.nome_cantante, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                            Text(text = cantante.canzone, style = MaterialTheme.typography.bodySmall, color = Color.Gray)
+                        }
+                        Text(text = "${cantante.punti} PT", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun RankingView(classifica: List<UtenteInLega>) {
+    LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        itemsIndexed(classifica) { index, user ->
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "${index + 1}°",
+                    modifier = Modifier.width(40.dp),
+                    fontWeight = FontWeight.Bold,
+                    color = if (index == 0) Color(0xFFFFD700) else MaterialTheme.colorScheme.onSurface
+                )
+                Text(text = user.nome_utente, modifier = Modifier.weight(1f), fontWeight = FontWeight.Medium)
+                Text(text = "${user.punti} PT", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+            }
+            HorizontalDivider(modifier = Modifier.padding(top = 8.dp), thickness = 0.5.dp, color = Color.LightGray.copy(alpha = 0.5f))
         }
     }
 }
