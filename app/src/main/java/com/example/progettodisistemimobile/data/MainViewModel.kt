@@ -6,9 +6,11 @@ import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
@@ -21,7 +23,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     init {
         viewModelScope.launch {
-            // All'avvio, recuperiamo l'ultimo utente salvato
             val savedUser = settingsManager.currentUser.first()
             _currentUser.value = savedUser
         }
@@ -42,6 +43,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun getTokens(username: String) = dao.getTokenUtente(username)
     fun getUtente(username: String) = dao.getUtenteFlow(username)
     fun getLegheUtente(username: String) = dao.getLeghePerUtente(username)
+    fun getLega(idLega: Int) = dao.getLegaById(idLega)
+    fun getDatiPartecipazione(idLega: Int, username: String) = dao.getUtenteInLega(idLega, username)
     fun getClassificaLega(idLega: Int) = dao.getClassificaLega(idLega)
     fun getSquadra(idLega: Int, username: String) = dao.getSquadraUtenteInLega(idLega, username)
 
@@ -53,7 +56,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 updateCurrentUser(nuovoNome)
             }
             nuovaFoto?.let { photoUri ->
-                // Rendiamo permanente il permesso di leggere l'immagine scelta dalla galleria
                 try {
                     val uri = Uri.parse(photoUri)
                     if (photoUri.startsWith("content://")) {

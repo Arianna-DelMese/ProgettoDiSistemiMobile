@@ -57,8 +57,14 @@ interface AppDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertLega(lega: Lega): Long
 
+    @Query("SELECT * FROM lega WHERE id_lega = :idLega")
+    fun getLegaById(idLega: Int): Flow<Lega?>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun joinLega(utenteInLega: UtenteInLega)
+
+    @Query("SELECT * FROM utente_in_lega WHERE id_lega = :idLega AND nome_utente = :username")
+    fun getUtenteInLega(idLega: Int, username: String): Flow<UtenteInLega?>
 
     @Query("""
         SELECT * FROM lega 
