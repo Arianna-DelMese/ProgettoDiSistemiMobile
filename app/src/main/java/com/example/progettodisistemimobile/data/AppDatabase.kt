@@ -82,29 +82,43 @@ abstract class AppDatabase : RoomDatabase() {
             bundles.forEach { dao.insertBundle(it) }
 
             // --- DATI PROVVISORI PER TEST ---
-            val testUser = Utente("MarioRossi", "mario@example.com", "password123", null, 150, null, null)
-            dao.insertUtente(testUser)
+            dao.insertUtente(Utente("MarioRossi", "mario@example.com", "password123", null, 150, null, null))
+            dao.insertUtente(Utente("LuigiVerdi", "luigi@example.com", "password456", null, 50, null, null))
+            dao.insertUtente(Utente("SofiaBianchi", "sofia@example.com", "password789", null, 200, null, null))
+            dao.insertUtente(Utente("MarcoNeri", "marco@example.com", "passwordabc", null, 100, null, null))
+            dao.insertUtente(Utente("ElenaGialli", "elena@example.com", "passworddef", null, 80, null, null))
+            dao.insertUtente(Utente("DavideRossi", "davide@example.com", "passwordghi", null, 120, null, null))
 
-            // Creazione di più leghe per testare la schermata "Le Mie Leghe"
             val idL1 = dao.insertLega(Lega(0, "Lega degli Esperti", null, "Una lega per veri appassionati", true, 41.89, 12.49))
             val idL2 = dao.insertLega(Lega(0, "Amici di Sanremo", null, "Solo per divertimento", true, 45.44, 9.14))
             val idL3 = dao.insertLega(Lega(0, "Lega Mondiale", null, "Sfida globale", true, null, null))
 
-            // Iscrizione di MarioRossi alle leghe
-            dao.joinLega(UtenteInLega(0, "MarioRossi", idL1.toInt(), true, 45))
-            dao.joinLega(UtenteInLega(0, "MarioRossi", idL2.toInt(), false, 120))
-            dao.joinLega(UtenteInLega(0, "MarioRossi", idL3.toInt(), true, 10))
+            // Iscrizione alle leghe (Chiave composta: nome_utente + id_lega)
+            // Lega 1: Mario, Luigi, Sofia
+            dao.joinLega(UtenteInLega("MarioRossi", idL1.toInt(), true, 45))
+            dao.joinLega(UtenteInLega("LuigiVerdi", idL1.toInt(), false, 30))
+            dao.joinLega(UtenteInLega("SofiaBianchi", idL1.toInt(), false, 60))
 
-            // Popoliamo una squadra
-            val idSquadra1 = 1 // Sappiamo che è il primo inserito
+            // Lega 2: Mario, Marco, Elena
+            dao.joinLega(UtenteInLega("MarioRossi", idL2.toInt(), false, 120))
+            dao.joinLega(UtenteInLega("MarcoNeri", idL2.toInt(), true, 90))
+            dao.joinLega(UtenteInLega("ElenaGialli", idL2.toInt(), false, 75))
+
+            // Lega 3: Mario, Davide, Luigi, Sofia
+            dao.joinLega(UtenteInLega("MarioRossi", idL3.toInt(), true, 10))
+            dao.joinLega(UtenteInLega("DavideRossi", idL3.toInt(), false, 40))
+            dao.joinLega(UtenteInLega("LuigiVerdi", idL3.toInt(), false, 25))
+            dao.joinLega(UtenteInLega("SofiaBianchi", idL3.toInt(), false, 55))
+
+            // Popoliamo la squadra (Chiave composta: nome_utente + id_lega + nome_cantante)
             val composizione = listOf(
-                ComposizioneSquadra(idSquadra1, "Marco Mengoni", 0),
-                ComposizioneSquadra(idSquadra1, "Cristiano Malgiolio", 1),
-                ComposizioneSquadra(idSquadra1, "Sabrina Carpenter", 2),
-                ComposizioneSquadra(idSquadra1, "Mahmood", 3),
-                ComposizioneSquadra(idSquadra1, "Vasco Rossi", 4),
-                ComposizioneSquadra(idSquadra1, "Mina", 5),
-                ComposizioneSquadra(idSquadra1, "Anna Oxa", 6)
+                ComposizioneSquadra("MarioRossi", idL1.toInt(), "Marco Mengoni", 0),
+                ComposizioneSquadra("MarioRossi", idL1.toInt(), "Cristiano Malgiolio", 1),
+                ComposizioneSquadra("MarioRossi", idL1.toInt(), "Sabrina Carpenter", 2),
+                ComposizioneSquadra("MarioRossi", idL1.toInt(), "Mahmood", 3),
+                ComposizioneSquadra("MarioRossi", idL1.toInt(), "Vasco Rossi", 4),
+                ComposizioneSquadra("MarioRossi", idL1.toInt(), "Mina", 5),
+                ComposizioneSquadra("MarioRossi", idL1.toInt(), "Anna Oxa", 6)
             )
             composizione.forEach { dao.insertComposizione(it) }
         }

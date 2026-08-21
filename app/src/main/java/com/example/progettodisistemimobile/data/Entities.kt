@@ -3,7 +3,6 @@ package com.example.progettodisistemimobile.data
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
-import androidx.room.Index
 
 @Entity(tableName = "utente")
 data class Utente(
@@ -29,7 +28,7 @@ data class Lega(
 
 @Entity(
     tableName = "utente_in_lega",
-    indices = [Index(value = ["nome_utente", "id_lega"], unique = true)], // Vincolo: 1 utente = 1 squadra per lega
+    primaryKeys = ["nome_utente", "id_lega"],
     foreignKeys = [
         ForeignKey(
             entity = Utente::class,
@@ -46,22 +45,22 @@ data class Lega(
     ]
 )
 data class UtenteInLega(
-    @PrimaryKey(autoGenerate = true) val id_squadra: Int = 0,
     val nome_utente: String,
     val id_lega: Int,
-    val stato: Boolean,
+    val stato: Boolean, // true se creatore/admin
     val punti: Int = 0
 )
 
 @Entity(
     tableName = "composizione_squadra",
-    primaryKeys = ["id_squadra", "nome_cantante"],
+    primaryKeys = ["nome_utente", "id_lega", "nome_cantante"],
     foreignKeys = [
         ForeignKey(
             entity = UtenteInLega::class,
-            parentColumns = ["id_squadra"],
-            childColumns = ["id_squadra"],
-            onDelete = ForeignKey.CASCADE // Se la squadra sparisce, sparisce la composizione
+            parentColumns = ["nome_utente", "id_lega"],
+            childColumns = ["nome_utente", "id_lega"],
+            onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE
         ),
         ForeignKey(
             entity = Cantante::class,
@@ -72,7 +71,8 @@ data class UtenteInLega(
     ]
 )
 data class ComposizioneSquadra(
-    val id_squadra: Int,
+    val nome_utente: String,
+    val id_lega: Int,
     val nome_cantante: String,
     val ruolo: Int // 0=Capitano, 1-4=Titolari, 5-6=Riserve
 )

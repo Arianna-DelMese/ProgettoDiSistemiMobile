@@ -58,7 +58,7 @@ interface AppDao {
     suspend fun insertLega(lega: Lega): Long
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun joinLega(utenteInLega: UtenteInLega): Long
+    suspend fun joinLega(utenteInLega: UtenteInLega)
 
     @Query("""
         SELECT * FROM lega 
@@ -80,14 +80,17 @@ interface AppDao {
     @Query("""
         SELECT cantante.* FROM cantante 
         INNER JOIN composizione_squadra ON cantante.nome_cantante = composizione_squadra.nome_cantante 
-        INNER JOIN utente_in_lega ON composizione_squadra.id_squadra = utente_in_lega.id_squadra 
-        WHERE utente_in_lega.id_lega = :idLega AND utente_in_lega.nome_utente = :username
+        WHERE composizione_squadra.id_lega = :idLega AND composizione_squadra.nome_utente = :username
         ORDER BY composizione_squadra.ruolo ASC
     """)
     fun getSquadraUtenteInLega(idLega: Int, username: String): Flow<List<Cantante>>
 
-    @Query("UPDATE composizione_squadra SET ruolo = :nuovoRuolo WHERE id_squadra = :idSquadra AND nome_cantante = :nomeCantante")
-    suspend fun updateRuoloCantante(idSquadra: Int, nomeCantante: String, nuovoRuolo: Int)
+    @Query("""
+        UPDATE composizione_squadra 
+        SET ruolo = :nuovoRuolo 
+        WHERE id_lega = :idLega AND nome_utente = :username AND nome_cantante = :nomeCantante
+    """)
+    suspend fun updateRuoloCantante(idLega: Int, username: String, nomeCantante: String, nuovoRuolo: Int)
 
     // --- BUNDLE E OFFERTE ---
     @Insert(onConflict = OnConflictStrategy.REPLACE)

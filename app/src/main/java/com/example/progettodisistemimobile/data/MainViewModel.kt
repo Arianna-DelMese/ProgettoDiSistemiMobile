@@ -14,7 +14,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val settingsManager = SettingsManager(application)
 
     // --- SESSIONE UTENTE GLOBALE ---
-    // Inizializziamo con l'utente di test
     private val _currentUser = MutableStateFlow("MarioRossi")
     val currentUser: StateFlow<String> = _currentUser.asStateFlow()
 
@@ -44,7 +43,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             if (vecchioNome != nuovoNome) {
                 dao.updateNomeUtente(vecchioNome, nuovoNome)
-                // Fondamentale: aggiorniamo la sessione globale per sincronizzare tutte le schermate
                 updateCurrentUser(nuovoNome)
             }
             nuovaFoto?.let { dao.updateFotoProfilo(nuovoNome, it) }
@@ -52,13 +50,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     suspend fun isUsernameAvailable(username: String): Boolean {
-        // Verifica se il nome esiste già nel DB
         return !dao.utenteEsiste(username)
     }
 
     fun updateTheme(mode: String) {
         viewModelScope.launch {
             settingsManager.setThemeMode(mode)
+        }
+    }
+
+    fun aggiornaRuoloCantante(idLega: Int, username: String, nomeCantante: String, nuovoRuolo: Int) {
+        viewModelScope.launch {
+            dao.updateRuoloCantante(idLega, username, nomeCantante, nuovoRuolo)
         }
     }
 
