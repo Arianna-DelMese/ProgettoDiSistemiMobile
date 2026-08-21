@@ -106,9 +106,8 @@ fun LegaItem(lega: Lega, onClick: () -> Unit) {
                 ) {
                     Text(
                         text = lega.nome_lega.take(1).uppercase(),
-                        style = MaterialTheme.typography.headlineSmall,
-                        color = MaterialTheme.colorScheme.primary,
-                        fontWeight = FontWeight.Bold
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.primary
                     )
                 }
             }
@@ -123,7 +122,7 @@ fun LegaItem(lega: Lega, onClick: () -> Unit) {
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    text = "Tocca per vedere i dettagli",
+                    text = if (lega.stato) "Lega Pubblica" else "Lega Privata",
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.Gray
                 )

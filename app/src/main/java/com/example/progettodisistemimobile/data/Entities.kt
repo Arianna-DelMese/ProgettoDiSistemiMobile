@@ -21,7 +21,7 @@ data class Lega(
     val nome_lega: String,
     val immagine: String?,
     val descrizione: String,
-    val stato: Boolean,
+    val stato: Boolean, //true se pubblica, false se privata
     val latitudine: Double?,
     val longitudine: Double?
 )
