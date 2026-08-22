@@ -15,9 +15,9 @@ import kotlinx.coroutines.launch
 sealed interface AuthUiState {
     data object Idle : AuthUiState
     data object Loading : AuthUiState
+    data object Registrato : AuthUiState
     data class Error(val messaggio: String) : AuthUiState
 }
-
 class AuthViewModel(application: Application) : AndroidViewModel(application) {
 
     private val dao = AppDatabase.getDatabase(application).appDao()
@@ -102,8 +102,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                 )
             )
 
-            settings.setCurrentUser(nomePulito)
-            _uiState.value = AuthUiState.Idle
+            _uiState.value = AuthUiState.Registrato
         }
     }
 
@@ -135,9 +134,9 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    /** Da chiamare quando l'utente ricomincia a scrivere, per far sparire l'errore. */
+    /** Riporta lo stato a Idle, tranne mentre un'operazione è in corso. */
     fun resetErrore() {
-        if (_uiState.value is AuthUiState.Error) {
+        if (_uiState.value !is AuthUiState.Loading) {
             _uiState.value = AuthUiState.Idle
         }
     }

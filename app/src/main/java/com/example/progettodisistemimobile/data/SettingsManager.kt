@@ -17,8 +17,9 @@ class SettingsManager(private val context: Context) {
         preferences[themeKey] ?: "Sistema"
     }
 
+    /** Stringa vuota = nessun utente loggato. */
     val currentUser: Flow<String> = context.dataStore.data.map { preferences ->
-        preferences[userKey] ?: "MarioRossi"
+        preferences[userKey] ?: ""
     }
 
     suspend fun setThemeMode(mode: String) {
@@ -30,6 +31,13 @@ class SettingsManager(private val context: Context) {
     suspend fun setCurrentUser(username: String) {
         context.dataStore.edit { preferences ->
             preferences[userKey] = username
+        }
+    }
+
+    /** Logout: rimuove la sessione ma tiene le altre impostazioni (es. il tema). */
+    suspend fun clearCurrentUser() {
+        context.dataStore.edit { preferences ->
+            preferences.remove(userKey)
         }
     }
 }

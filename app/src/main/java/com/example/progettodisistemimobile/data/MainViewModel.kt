@@ -16,7 +16,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val settingsManager = SettingsManager(application)
 
     // --- SESSIONE UTENTE ---
-    private val _currentUser = MutableStateFlow("MarioRossi")
+    private val _currentUser = MutableStateFlow("")
     val currentUser: StateFlow<String> = _currentUser.asStateFlow()
 
     init {
