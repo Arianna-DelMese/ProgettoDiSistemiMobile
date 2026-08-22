@@ -31,6 +31,12 @@ interface AppDao {
     @Query("SELECT COUNT(*) FROM utente WHERE nome_utente = :username")
     suspend fun countUtentiByUsername(username: String): Int
 
+    @Query("SELECT * FROM utente WHERE email = :email")
+    suspend fun getUtenteByEmail(email: String): Utente?
+
+    @Query("SELECT EXISTS(SELECT 1 FROM utente WHERE email = :email)")
+    suspend fun emailEsiste(email: String): Boolean
+
     // --- CANTANTI E CLASSIFICHE ---
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertCantante(cantante: Cantante)
