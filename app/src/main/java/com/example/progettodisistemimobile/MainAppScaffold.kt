@@ -18,13 +18,12 @@ import com.example.progettodisistemimobile.screens.*
 import com.example.progettodisistemimobile.screens.home.HomeScreen
 import com.example.progettodisistemimobile.screens.leghe.LegaDetailScreen
 import com.example.progettodisistemimobile.screens.leghe.LeMieLegheScreen
-import com.example.progettodisistemimobile.screens.leghe.ModificaSquadraScreen
+import com.example.progettodisistemimobile.screens.leghe.ModificaFormazioneScreen
 import com.example.progettodisistemimobile.screens.profilo.ProfiloScreen
 
 @Composable
 fun MainAppScaffold() {
     val navController = rememberNavController()
-    // Creiamo il ViewModel qui per condividerlo tra tutte le schermate
     val mainViewModel: MainViewModel = viewModel()
 
     Scaffold(
@@ -72,13 +71,13 @@ fun MainAppScaffold() {
             }
 
             composable(
-                route = Screen.ModificaSquadra.route,
+                route = Screen.ModificaFormazione.route,
                 arguments = listOf(
                     navArgument("idLega") { type = NavType.IntType }
                 )
             ) { backStackEntry ->
                 val idLega = backStackEntry.arguments?.getInt("idLega") ?: 0
-                ModificaSquadraScreen(
+                ModificaFormazioneScreen(
                     idLega = idLega,
                     onBack = { navController.popBackStack() }
                 )
@@ -98,7 +97,7 @@ fun BottomNavigationBar(navController: NavHostController) {
 
             NavigationBarItem(
                 selected = isSelected,
-                alwaysShowLabel = true, // Forza il testo a restare sempre visibile
+                alwaysShowLabel = true,
                 onClick = {
                     if (currentRoute != screen.route) {
                         navController.navigate(screen.route) {

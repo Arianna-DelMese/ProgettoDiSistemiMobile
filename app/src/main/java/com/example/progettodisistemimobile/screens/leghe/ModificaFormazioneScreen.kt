@@ -11,11 +11,11 @@ import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ModificaSquadraScreen(idLega: Int, onBack: () -> Unit) {
+fun ModificaFormazioneScreen(idLega: Int, onBack: () -> Unit) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = "Modifica Squadra") },
+                title = { Text(text = "Modifica Formazione") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
@@ -33,7 +33,7 @@ fun ModificaSquadraScreen(idLega: Int, onBack: () -> Unit) {
                 .padding(innerPadding),
             contentAlignment = Alignment.Center
         ) {
-            Text(text = "Schermata Modifica Squadra per Lega ID: $idLega")
+            Text(text = "Schermata Modifica Formazione per Lega ID: $idLega")
         }
     }
 }

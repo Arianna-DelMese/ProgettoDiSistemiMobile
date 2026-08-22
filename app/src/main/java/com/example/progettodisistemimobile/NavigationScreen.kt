@@ -48,12 +48,12 @@ sealed interface Screen {
         fun createRoute(idLega: Int, nomeLega: String) = "dettaglio_lega/$idLega/$nomeLega"
     }
 
-    data object ModificaSquadra : Screen {
-        override val route = "modifica_squadra/{idLega}"
-        override val label = "Modifica Squadra"
+    data object ModificaFormazione : Screen {
+        override val route = "modifica_formazione/{idLega}"
+        override val label = "Modifica Formazione"
         override val icon = null
 
-        fun createRoute(idLega: Int) = "modifica_squadra/$idLega"
+        fun createRoute(idLega: Int) = "modifica_formazione/$idLega"
     }
 }
 

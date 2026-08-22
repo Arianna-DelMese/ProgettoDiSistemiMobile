@@ -26,14 +26,14 @@ fun TopPerformersSection(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // --- BOTTONE MODIFICA SQUADRA ---
+        // --- BOTTONE MODIFICA FORMAZIONE ---
         Button(
             onClick = onModificaClick,
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp),
             elevation = ButtonDefaults.buttonElevation(defaultElevation = 2.dp)
         ) {
-            Text(text = "Modifica squadra", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+            Text(text = "Modifica formazione", fontSize = 16.sp, fontWeight = FontWeight.Bold)
         }
     }
 }

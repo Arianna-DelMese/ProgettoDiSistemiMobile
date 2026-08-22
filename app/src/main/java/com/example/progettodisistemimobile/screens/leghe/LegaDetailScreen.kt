@@ -1,9 +1,6 @@
 package com.example.progettodisistemimobile.screens.leghe
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -47,7 +44,7 @@ fun LegaDetailScreen(
         // --- TOP PERFORMERS E BOTTONE MODIFICA ---
         TopPerformersSection(
             squadra = squadra,
-            onModificaClick = { navController.navigate(Screen.ModificaSquadra.createRoute(idLega)) }
+            onModificaClick = { navController.navigate(Screen.ModificaFormazione.createRoute(idLega)) }
         )
 
         Spacer(modifier = Modifier.height(24.dp))
