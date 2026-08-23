@@ -83,12 +83,12 @@ abstract class AppDatabase : RoomDatabase() {
 
             // --- UTENTI ---
             val utenti = listOf(
-                Utente("MarioRossi", "mario@example.com", "pass", null, 150, null, null),
-                Utente("LuigiVerdi", "luigi@example.com", "pass", null, 50, null, null),
-                Utente("SofiaBianchi", "sofia@example.com", "pass", null, 200, null, null),
-                Utente("MarcoNeri", "marco@example.com", "pass", null, 100, null, null),
-                Utente("ElenaGialli", "elena@example.com", "pass", null, 80, null, null),
-                Utente("DavideRossi", "davide@example.com", "pass", null, 120, null, null)
+                Utente("MarioRossi", "mario@example.com", PasswordUtils.hash("pass"), null, 150, null, null),
+                Utente("LuigiVerdi", "luigi@example.com", PasswordUtils.hash("pass"), null, 50, null, null),
+                Utente("SofiaBianchi", "sofia@example.com", PasswordUtils.hash("pass"), null, 200, null, null),
+                Utente("MarcoNeri", "marco@example.com", PasswordUtils.hash("pass"), null, 100, null, null),
+                Utente("ElenaGialli", "elena@example.com", PasswordUtils.hash("pass"), null, 80, null, null),
+                Utente("DavideRossi", "davide@example.com", PasswordUtils.hash("pass"), null, 120, null, null)
             )
             utenti.forEach { dao.insertUtente(it) }
 

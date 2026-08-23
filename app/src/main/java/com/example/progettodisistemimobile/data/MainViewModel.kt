@@ -5,33 +5,31 @@ import android.content.Intent
 import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.stateIn
+
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val dao = AppDatabase.getDatabase(application).appDao()
     private val settingsManager = SettingsManager(application)
 
-    private val _currentUser = MutableStateFlow("MarioRossi")
-    val currentUser: StateFlow<String> = _currentUser.asStateFlow()
-
-    init {
-        viewModelScope.launch {
-            val savedUser = settingsManager.currentUser.first()
-            _currentUser.value = savedUser
-        }
-    }
+    // --- SESSIONE UTENTE ---
+    // Osserva il DataStore: si aggiorna da solo quando l'utente fa login/logout
+    val currentUser: StateFlow<String> = settingsManager.currentUser.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = ""
+    )
 
     fun updateCurrentUser(newUsername: String) {
         viewModelScope.launch {
-            _currentUser.value = newUsername
             settingsManager.setCurrentUser(newUsername)
         }
     }
 
+    // --- STREAM DI DATI ---
     val tuttiICantantiPerPunti = dao.getCantantiPerPunti()
     val tuttiIBundle = dao.getAllBundles()
     val themeMode = settingsManager.themeMode
@@ -44,6 +42,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun getClassificaLegaConCapitano(idLega: Int) = dao.getClassificaLegaConCapitano(idLega)
     fun getSquadra(idLega: Int, username: String) = dao.getSquadraUtenteInLega(idLega, username)
 
+    // --- OPERAZIONI UTENTE ---
     fun aggiornaProfilo(vecchioNome: String, nuovoNome: String, nuovaFoto: String?) {
         viewModelScope.launch {
             if (vecchioNome != nuovoNome) {
@@ -53,7 +52,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             nuovaFoto?.let { photoUri ->
                 try {
                     val uri = Uri.parse(photoUri)
-                    if (photoUri.startsWith("content://") && !photoUri.contains(getApplication<Application>().packageName)) {
+                    if (photoUri.startsWith("content://")) {
                         getApplication<Application>().contentResolver.takePersistableUriPermission(
                             uri,
                             Intent.FLAG_GRANT_READ_URI_PERMISSION
