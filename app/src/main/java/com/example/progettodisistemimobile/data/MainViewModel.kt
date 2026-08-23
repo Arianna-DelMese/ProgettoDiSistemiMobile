@@ -5,31 +5,33 @@ import android.content.Intent
 import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.stateIn
-
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val dao = AppDatabase.getDatabase(application).appDao()
     private val settingsManager = SettingsManager(application)
 
-    // --- SESSIONE UTENTE ---
-    // Osserva il DataStore: si aggiorna da solo quando l'utente fa login/logout
-    val currentUser: StateFlow<String> = settingsManager.currentUser.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = ""
-    )
+    private val _currentUser = MutableStateFlow("MarioRossi")
+    val currentUser: StateFlow<String> = _currentUser.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            val savedUser = settingsManager.currentUser.first()
+            if (savedUser.isNotEmpty()) _currentUser.value = savedUser
+        }
+    }
 
     fun updateCurrentUser(newUsername: String) {
         viewModelScope.launch {
+            _currentUser.value = newUsername
             settingsManager.setCurrentUser(newUsername)
         }
     }
 
-    // --- STREAM DI DATI ---
     val tuttiICantantiPerPunti = dao.getCantantiPerPunti()
     val tuttiIBundle = dao.getAllBundles()
     val themeMode = settingsManager.themeMode
@@ -42,7 +44,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun getClassificaLegaConCapitano(idLega: Int) = dao.getClassificaLegaConCapitano(idLega)
     fun getSquadra(idLega: Int, username: String) = dao.getSquadraUtenteInLega(idLega, username)
 
-    // --- OPERAZIONI UTENTE ---
     fun aggiornaProfilo(vecchioNome: String, nuovoNome: String, nuovaFoto: String?) {
         viewModelScope.launch {
             if (vecchioNome != nuovoNome) {
@@ -52,15 +53,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             nuovaFoto?.let { photoUri ->
                 try {
                     val uri = Uri.parse(photoUri)
-                    if (photoUri.startsWith("content://")) {
+                    if (photoUri.startsWith("content://") && !photoUri.contains(getApplication<Application>().packageName)) {
                         getApplication<Application>().contentResolver.takePersistableUriPermission(
                             uri,
                             Intent.FLAG_GRANT_READ_URI_PERMISSION
                         )
                     }
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
+                } catch (e: Exception) { e.printStackTrace() }
                 dao.updateFotoProfilo(nuovoNome, photoUri)
             }
         }
@@ -71,14 +70,30 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun updateTheme(mode: String) {
+        viewModelScope.launch { settingsManager.setThemeMode(mode) }
+    }
+
+    // --- LOGICA FORMAZIONE ---
+
+    fun scambiaRuoli(idLega: Int, username: String, c1: Cantante, r1: Int, c2: Cantante, r2: Int) {
         viewModelScope.launch {
-            settingsManager.setThemeMode(mode)
+            dao.updateRuoloCantante(idLega, username, c1.nome_cantante, r2)
+            dao.updateRuoloCantante(idLega, username, c2.nome_cantante, r1)
         }
     }
 
-    fun aggiornaRuoloCantante(idLega: Int, username: String, nomeCantante: String, nuovoRuolo: Int) {
+    fun impostaCapitano(idLega: Int, username: String, nuovoCapitano: Cantante, squadra: List<Cantante>) {
         viewModelScope.launch {
-            dao.updateRuoloCantante(idLega, username, nomeCantante, nuovoRuolo)
+            // Cerchiamo l'attuale capitano (ruolo 0)
+            val vecchioCapitano = squadra.getOrNull(0)
+            if (vecchioCapitano != null && vecchioCapitano.nome_cantante != nuovoCapitano.nome_cantante) {
+                // Troviamo il ruolo attuale del nuovo capitano
+                val currentIndex = squadra.indexOf(nuovoCapitano)
+                if (currentIndex != -1) {
+                    dao.updateRuoloCantante(idLega, username, vecchioCapitano.nome_cantante, currentIndex)
+                    dao.updateRuoloCantante(idLega, username, nuovoCapitano.nome_cantante, 0)
+                }
+            }
         }
     }
 
