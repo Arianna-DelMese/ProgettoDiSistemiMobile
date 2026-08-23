@@ -9,6 +9,18 @@ sealed interface Screen {
     val label: String
     val icon: ImageVector?
 
+    data object Login : Screen {
+        override val route = "login"
+        override val label = "Login"
+        override val icon = null
+    }
+
+    data object Register : Screen {
+        override val route = "register"
+        override val label = "Registrazione"
+        override val icon = null
+    }
+
     data object Home : Screen {
         override val route = "home"
         override val label = "Home"
