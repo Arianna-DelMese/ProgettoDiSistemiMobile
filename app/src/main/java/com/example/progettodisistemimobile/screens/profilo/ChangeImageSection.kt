@@ -36,7 +36,10 @@ fun ChangeImageSection(
             AsyncImage(
                 model = selectedImageUri,
                 contentDescription = "Anteprima",
-                modifier = Modifier.size(160.dp).clip(RoundedCornerShape(12.dp)).border(1.dp, Color.Gray, RoundedCornerShape(12.dp)),
+                modifier = Modifier
+                    .size(160.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .border(1.dp, Color.Gray, RoundedCornerShape(12.dp)),
                 contentScale = ContentScale.Crop
             )
             Row(modifier = Modifier.padding(top = 16.dp)) {
@@ -60,8 +63,8 @@ fun ImageSourceDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Seleziona Sorgente") },
-        text = { Text("Scegli se scattare una foto o usarne una esistente.") },
+        title = { Text("Origine Immagine") },
+        text = { Text("Vuoi scattare una foto o usarne una esistente?") },
         confirmButton = {
             TextButton(onClick = onGallerySelect) {
                 Row(verticalAlignment = Alignment.CenterVertically) {

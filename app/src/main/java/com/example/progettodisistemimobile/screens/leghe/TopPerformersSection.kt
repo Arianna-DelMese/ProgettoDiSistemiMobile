@@ -69,7 +69,7 @@ fun HorizontalRankingRow(squadra: List<Cantante>) {
                         text = formattedName,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.secondary,
+                        color = MaterialTheme.colorScheme.tertiary,
                         textAlign = TextAlign.Center,
                         lineHeight = 20.sp
                     )
@@ -79,10 +79,16 @@ fun HorizontalRankingRow(squadra: List<Cantante>) {
                         fontWeight = FontWeight.Medium,
                         textAlign = TextAlign.Center
                     )
+                    Text(
+                        text = "CAPITANO",
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Light,
+                        letterSpacing = 1.sp
+                    )
                 }
             }
 
-            // Divisore verticale sottile
+            // Divisore verticale
             VerticalDivider(
                 modifier = Modifier.height(40.dp).padding(horizontal = 8.dp),
                 thickness = 1.dp,

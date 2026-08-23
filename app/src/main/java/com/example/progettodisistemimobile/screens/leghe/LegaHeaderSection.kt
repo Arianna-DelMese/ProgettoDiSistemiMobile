@@ -1,16 +1,20 @@
 package com.example.progettodisistemimobile.screens.leghe
 
+import android.content.Intent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Link
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -25,26 +29,35 @@ fun LegaHeaderSection(
     partecipazione: UtenteInLega?,
     onBack: () -> Unit
 ) {
+    val context = LocalContext.current
+    
     Column {
-        // --- HEADER ---
+        // --- HEADER: IMMAGINE, NOME E BOTTONI ---
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = onBack, modifier = Modifier.padding(end = 4.dp)) {
-                Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Indietro")
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Indietro"
+                )
             }
 
             if (lega?.immagine != null) {
                 AsyncImage(
                     model = lega.immagine,
                     contentDescription = null,
-                    modifier = Modifier.size(45.dp).clip(RoundedCornerShape(8.dp)),
+                    modifier = Modifier
+                        .size(45.dp)
+                        .clip(RoundedCornerShape(8.dp)),
                     contentScale = ContentScale.Crop
                 )
             } else {
                 Box(
-                    modifier = Modifier.size(45.dp).background(MaterialTheme.colorScheme.primaryContainer, RoundedCornerShape(8.dp)),
+                    modifier = Modifier
+                        .size(45.dp)
+                        .background(MaterialTheme.colorScheme.primaryContainer, RoundedCornerShape(8.dp)),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
@@ -65,12 +78,34 @@ fun LegaHeaderSection(
                 modifier = Modifier.weight(1f)
             )
 
-            Row {
-                TextButton(onClick = { /* Invita */ }, contentPadding = PaddingValues(horizontal = 8.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                TextButton(
+                    onClick = {
+                        val shareText = "Entra nella mia lega '${lega?.nome_lega ?: nomeLegaFallback}' di Fantasanremo! Codice: ${lega?.id_lega ?: 0}"
+                        val sendIntent: Intent = Intent().apply {
+                            action = Intent.ACTION_SEND
+                            putExtra(Intent.EXTRA_TEXT, shareText)
+                            type = "text/plain"
+                        }
+                        val shareIntent = Intent.createChooser(sendIntent, "Condividi Lega")
+                        context.startActivity(shareIntent)
+                    },
+                    contentPadding = PaddingValues(horizontal = 4.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Link,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
                     Text("Invita", fontSize = 14.sp)
                 }
+                
                 if (partecipazione?.stato == true) {
-                    TextButton(onClick = { /* Modifica */ }, contentPadding = PaddingValues(horizontal = 8.dp)) {
+                    TextButton(
+                        onClick = { /* Azione Modifica */ },
+                        contentPadding = PaddingValues(horizontal = 4.dp)
+                    ) {
                         Text("Modifica", fontSize = 14.sp)
                     }
                 }
@@ -81,7 +116,7 @@ fun LegaHeaderSection(
         HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.outlineVariant)
         Spacer(modifier = Modifier.height(16.dp))
 
-        // --- PUNTI ---
+        // --- PUNTI UTENTE ---
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(text = "I miei punti: ", fontSize = 18.sp, fontWeight = FontWeight.Medium)
             Text(
