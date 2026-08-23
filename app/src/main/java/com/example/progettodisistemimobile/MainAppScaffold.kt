@@ -79,7 +79,8 @@ fun MainAppScaffold() {
                 val idLega = backStackEntry.arguments?.getInt("idLega") ?: 0
                 ModificaFormazioneScreen(
                     idLega = idLega,
-                    onBack = { navController.popBackStack() }
+                    onBack = { navController.popBackStack() },
+                    viewModel = mainViewModel
                 )
             }
         }
@@ -97,7 +98,7 @@ fun BottomNavigationBar(navController: NavHostController) {
 
             NavigationBarItem(
                 selected = isSelected,
-                alwaysShowLabel = true,
+                alwaysShowLabel = true, // Forza il testo a restare sempre visibile
                 onClick = {
                     if (currentRoute != screen.route) {
                         navController.navigate(screen.route) {
