@@ -6,16 +6,21 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.content.FileProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.progettodisistemimobile.data.AuthViewModel
@@ -28,47 +33,55 @@ fun ProfiloScreen(
     authViewModel: AuthViewModel = viewModel()
 ) {
     val context = LocalContext.current
-
-    // SORGENTE UNICA PERSISTENTE: leggiamo l'utente correntemente loggato dal ViewModel
     val currentUsername by viewModel.currentUser.collectAsState()
-    
     val utente by viewModel.getUtente(currentUsername).collectAsState(initial = null)
     val themeMode by viewModel.themeMode.collectAsState(initial = "Sistema")
 
-    // Stati UI per le modifiche
     var newNameInput by remember { mutableStateOf("") }
     var isNameAvailable by remember { mutableStateOf(true) }
-    
-    // Saver per l'URI (persistenza alla rotazione/cambio activity)
+
+    // Saver per gestire Uri con rememberSaveable
     val uriSaver = Saver<Uri?, String>(
         save = { it?.toString() ?: "" },
         restore = { if (it.isEmpty()) null else Uri.parse(it) }
     )
+
     var selectedImageUri by rememberSaveable(stateSaver = uriSaver) { mutableStateOf(null) }
     var showImagePreview by rememberSaveable { mutableStateOf(false) }
     var showImageSourceOptions by remember { mutableStateOf(false) }
 
-    // Funzione sicura per generare l'URI della fotocamera
-    fun getTmpUri(): Uri? {
-        return try {
-            val tempFile = File(context.cacheDir, "profile_pic_preview.jpg")
-            if (tempFile.exists()) tempFile.delete()
-            tempFile.createNewFile()
-            FileProvider.getUriForFile(context, "com.example.progettodisistemimobile.fileprovider", tempFile)
-        } catch (e: Exception) { null }
-    }
-
-    val galleryLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.PickVisualMedia(),
-        onResult = { uri -> if (uri != null) { selectedImageUri = uri; showImagePreview = true } }
-    )
-
+    // Launcher Fotocamera
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture(),
         onResult = { success -> if (success) showImagePreview = true }
     )
 
-    // Validazione disponibilità nome
+    // Launcher Galleria
+    val galleryLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia(),
+        onResult = { uri ->
+            if (uri != null) {
+                selectedImageUri = uri
+                showImagePreview = true
+            }
+        }
+    )
+
+    fun prepareCameraUri(): Uri? {
+        return try {
+            val directory = File(context.cacheDir, "images")
+            if (!directory.exists()) directory.mkdirs()
+            val file = File(directory, "profile_pic_${System.currentTimeMillis()}.jpg")
+            FileProvider.getUriForFile(
+                context,
+                "com.example.progettodisistemimobile.fileprovider",
+                file
+            )
+        } catch (e: Exception) {
+            null
+        }
+    }
+
     LaunchedEffect(newNameInput) {
         if (newNameInput.isNotEmpty() && newNameInput != currentUsername) {
             isNameAvailable = viewModel.isUsernameAvailable(newNameInput)
@@ -84,7 +97,6 @@ fun ProfiloScreen(
             .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.Start
     ) {
-        // --- VISUALIZZAZIONE DATI (UserInfoSection.kt) ---
         UserInfoSection(utente = utente, sessionUsername = currentUsername)
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -107,10 +119,9 @@ fun ProfiloScreen(
                 Text("Logout", fontWeight = FontWeight.Bold)
             }
         }
-        
+
         Spacer(modifier = Modifier.height(8.dp))
 
-        // --- CAMBIA NOME (ChangeNameSection.kt) ---
         ChangeNameSection(
             newNameInput = newNameInput,
             onNameChange = { newNameInput = it },
@@ -124,7 +135,6 @@ fun ProfiloScreen(
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        // --- CAMBIA IMMAGINE (ChangeImageSection.kt) ---
         ChangeImageSection(
             showImagePreview = showImagePreview,
             selectedImageUri = selectedImageUri,
@@ -145,7 +155,7 @@ fun ProfiloScreen(
                 },
                 onCameraSelect = {
                     showImageSourceOptions = false
-                    val uri = getTmpUri()
+                    val uri = prepareCameraUri()
                     if (uri != null) {
                         selectedImageUri = uri
                         cameraLauncher.launch(uri)
@@ -156,7 +166,6 @@ fun ProfiloScreen(
 
         Spacer(modifier = Modifier.height(48.dp))
 
-        // --- TEMA (ThemeSelectionSection.kt) ---
         ThemeSelectionSection(
             themeMode = themeMode,
             onThemeChange = { viewModel.updateTheme(it) }
