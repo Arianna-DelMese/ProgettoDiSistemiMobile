@@ -43,7 +43,7 @@ fun MainAppScaffold() {
                 LeMieLegheScreen(navController, mainViewModel)
             }
             composable(Screen.NuovaSquadra.route) {
-                NuovaSquadraScreen()
+                NuovaSquadraScreen(mainViewModel)
             }
             composable(Screen.Shop.route) {
                 ShopScreen()

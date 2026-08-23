@@ -9,6 +9,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val dao = AppDatabase.getDatabase(application).appDao()
@@ -103,4 +105,47 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
     }
+    // --- NUOVA SQUADRA ---
+
+    // Nomi dei cantanti selezionati, nell'ordine in cui li ho scelti
+    private val _cantantiSelezionati = MutableStateFlow<List<String>>(emptyList())
+    val cantantiSelezionati: StateFlow<List<String>> = _cantantiSelezionati.asStateFlow()
+
+    // Nome del cantante scelto come capitano (null se non ancora scelto)
+    private val _capitano = MutableStateFlow<String?>(null)
+    val capitano: StateFlow<String?> = _capitano.asStateFlow()
+
+    companion object {
+        const val CANTANTI_PER_SQUADRA = 7
+    }
+
+    /** Aggiunge o toglie un cantante dalla selezione. */
+    fun toggleCantante(nomeCantante: String) {
+        val attuali = _cantantiSelezionati.value
+
+        if (nomeCantante in attuali) {
+            _cantantiSelezionati.value = attuali - nomeCantante
+            // Se ho tolto proprio il capitano, resta senza
+            if (_capitano.value == nomeCantante) {
+                _capitano.value = null
+            }
+        } else {
+            if (attuali.size >= CANTANTI_PER_SQUADRA) return
+            _cantantiSelezionati.value = attuali + nomeCantante
+        }
+    }
+
+    /** Imposta il capitano. Funziona solo su un cantante già selezionato. */
+    fun impostaCapitanoSelezione(nomeCantante: String) {
+        if (nomeCantante in _cantantiSelezionati.value) {
+            _capitano.value = nomeCantante
+        }
+    }
+
+    /** Svuota la selezione, da chiamare dopo aver salvato la squadra. */
+    fun resetSelezione() {
+        _cantantiSelezionati.value = emptyList()
+        _capitano.value = null
+    }
 }
+
