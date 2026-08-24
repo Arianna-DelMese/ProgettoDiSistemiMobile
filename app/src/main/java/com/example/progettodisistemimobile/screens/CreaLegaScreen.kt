@@ -32,6 +32,9 @@ import java.io.File
 import android.Manifest
 import android.content.pm.PackageManager
 import androidx.core.content.ContextCompat
+import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -51,6 +54,27 @@ fun CreaLegaScreen(
     var mostraDialogo by remember { mutableStateOf(false) }
     // Serve tenerlo fuori dal launcher: la fotocamera non ci restituisce l'uri, lo decidiamo noi prima
     var uriScatto by remember { mutableStateOf<Uri?>(null) }
+
+    // CITTA'
+    val scope = rememberCoroutineScope()
+    var posizione by remember { mutableStateOf<PosizioneTrovata?>(null) }
+    var cercandoPosizione by remember { mutableStateOf(false) }
+    var posizioneNegata by remember { mutableStateOf(false) }
+
+    // Funzione locale: legge la posizione e aggiorna lo stato
+    fun ottieniPosizione() {
+        scope.launch {
+            cercandoPosizione = true
+            posizione = leggiPosizione(context)
+            cercandoPosizione = false
+        }
+    }
+
+    val permessoPosizioneLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { concesso ->
+        if (concesso) ottieniPosizione() else posizioneNegata = true
+    }
 
     val galleriaLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
@@ -209,6 +233,82 @@ fun CreaLegaScreen(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
+            // La posizione ha senso solo per le leghe pubbliche
+            if (pubblica) {
+                Spacer(Modifier.height(24.dp))
+
+                Text("Città", fontWeight = FontWeight.Bold)
+                Spacer(Modifier.height(8.dp))
+
+                when {
+                    cercandoPosizione -> {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(18.dp),
+                                strokeWidth = 2.dp
+                            )
+                            Spacer(Modifier.width(12.dp))
+                            Text("Sto cercando la posizione...")
+                        }
+                    }
+
+                    posizione != null -> {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                Icons.Default.LocationOn,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                            Spacer(Modifier.width(8.dp))
+                            Text(
+                                text = posizione?.citta ?: "Posizione rilevata",
+                                fontWeight = FontWeight.Medium
+                            )
+                            Spacer(Modifier.weight(1f))
+                            TextButton(onClick = { posizione = null }) {
+                                Text("Rimuovi")
+                            }
+                        }
+                    }
+
+                    else -> {
+                        OutlinedButton(
+                            onClick = {
+                                posizioneNegata = false
+                                val giaConcesso = ContextCompat.checkSelfPermission(
+                                    context, Manifest.permission.ACCESS_COARSE_LOCATION
+                                ) == PackageManager.PERMISSION_GRANTED
+
+                                if (giaConcesso) {
+                                    ottieniPosizione()
+                                } else {
+                                    permessoPosizioneLauncher.launch(
+                                        Manifest.permission.ACCESS_COARSE_LOCATION
+                                    )
+                                }
+                            },
+                            enabled = !salvataggioInCorso
+                        ) {
+                            Icon(Icons.Default.LocationOn, contentDescription = null)
+                            Spacer(Modifier.width(8.dp))
+                            Text("Usa la mia posizione")
+                        }
+                    }
+                }
+
+                Spacer(Modifier.height(8.dp))
+
+                Text(
+                    text = if (posizioneNegata)
+                        "Senza posizione la lega sarà comunque pubblica, ma non comparirà sulla mappa."
+                    else
+                        "Serve per far trovare la tua lega a chi cerca per zona. È facoltativa.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = if (posizioneNegata) MaterialTheme.colorScheme.error
+                    else MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
             Spacer(Modifier.height(32.dp))
 
             Button(
@@ -219,8 +319,8 @@ fun CreaLegaScreen(
                         descrizione = descrizione,
                         pubblica = pubblica,
                         immagine = immagineUri?.toString(),
-                        latitudine = null,   // blocco 3
-                        longitudine = null,
+                        latitudine = if (pubblica) posizione?.latitudine else null,
+                        longitudine = if (pubblica) posizione?.longitudine else null,
                         onFatto = { idLega -> onLegaCreata(idLega) }
                     )
                 },
