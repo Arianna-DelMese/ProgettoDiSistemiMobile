@@ -45,7 +45,7 @@ fun MainAppScaffold() {
             composable(Screen.NuovaSquadra.route) {
                 NuovaSquadraScreen(
                     viewModel = mainViewModel,
-                    onCreaNuovaLega = { /* TODO: schermata Crea Lega */ },
+                    onCreaNuovaLega = { navController.navigate("crea_lega") },
                     onAggiungiALegaEsistente = { /* TODO: schermata Aggiungi a Lega */ }
                 )
             }
@@ -71,6 +71,18 @@ fun MainAppScaffold() {
                     onBack = { navController.popBackStack() },
                     navController = navController,
                     viewModel = mainViewModel
+                )
+            }
+
+            composable("crea_lega") {
+                CreaLegaScreen(
+                    viewModel = mainViewModel,
+                    onBack = { navController.popBackStack() },
+                    onLegaCreata = { idLega ->
+                        navController.navigate(Screen.LeMieLeghe.route) {
+                            popUpTo(Screen.NuovaSquadra.route) { inclusive = true }
+                        }
+                    }
                 )
             }
 

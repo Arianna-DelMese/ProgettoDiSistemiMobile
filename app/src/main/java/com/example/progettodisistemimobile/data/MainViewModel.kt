@@ -147,5 +147,71 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _cantantiSelezionati.value = emptyList()
         _capitano.value = null
     }
+    /**
+     * Crea una nuova lega, iscrive l'utente come capitano e salva la squadra selezionata.
+     * I ruoli seguono lo schema del DB: 0 = capitano, 1-4 = titolari, 5-6 = riserve.
+     * onFatto viene chiamata a salvataggio concluso, con l'id della lega appena creata.
+     */
+    fun creaLegaConSquadra(
+        nomeLega: String,
+        descrizione: String,
+        pubblica: Boolean,
+        immagine: String?,
+        latitudine: Double?,
+        longitudine: Double?,
+        onFatto: (Int) -> Unit
+    ) {
+        val username = currentUser.value
+        val selezione = _cantantiSelezionati.value
+        val nomeCapitano = _capitano.value
+
+        // Guardia: non salvo squadre incomplete
+        if (username.isBlank() || selezione.size != CANTANTI_PER_SQUADRA || nomeCapitano == null) return
+
+        viewModelScope.launch {
+            // 1. Creo la lega e mi faccio restituire l'id generato da Room
+            val idLega = dao.insertLega(
+                Lega(
+                    id_lega = 0, // 0 = autogenerato
+                    nome_lega = nomeLega.trim(),
+                    immagine = immagine,
+                    descrizione = descrizione.trim(),
+                    stato = pubblica,
+                    latitudine = latitudine,
+                    longitudine = longitudine
+                )
+            ).toInt()
+
+            // 2. Mi iscrivo alla lega come creatrice (stato = true)
+            dao.joinLega(
+                UtenteInLega(
+                    nome_utente = username,
+                    id_lega = idLega,
+                    stato = true,
+                    punti = 0
+                )
+            )
+
+            // 3. Salvo la squadra: prima il capitano (ruolo 0), poi gli altri sei
+            dao.insertComposizione(
+                ComposizioneSquadra(username, idLega, nomeCapitano, 0)
+            )
+
+            val altri = selezione.filter { it != nomeCapitano }
+            altri.forEachIndexed { indice, nomeCantante ->
+                // indice 0..5 diventa ruolo 1..6: titolari 1-4, riserve 5-6
+                dao.insertComposizione(
+                    ComposizioneSquadra(username, idLega, nomeCantante, indice + 1)
+                )
+            }
+
+            // 4. Scalo i token spesi
+            val costo = dao.getPrezzoTotale(selezione)
+            dao.aggiungiToken(username, -costo)
+
+            resetSelezione()
+            onFatto(idLega)
+        }
+    }
 }
 

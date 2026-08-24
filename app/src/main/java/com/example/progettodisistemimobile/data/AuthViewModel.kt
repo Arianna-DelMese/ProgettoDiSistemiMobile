@@ -96,7 +96,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                     email = emailPulita,
                     password = PasswordUtils.hash(password),
                     foto_profilo = null,
-                    token = 50, // token di benvenuto
+                    token = 100, // token di benvenuto
                     dati_biomedici = null,
                     dati_pagamento = null
                 )

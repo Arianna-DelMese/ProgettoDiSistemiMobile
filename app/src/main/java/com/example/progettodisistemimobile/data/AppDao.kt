@@ -110,6 +110,9 @@ interface AppDao {
     """)
     suspend fun updateRuoloCantante(idLega: Int, username: String, nomeCantante: String, nuovoRuolo: Int)
 
+    @Query("SELECT COALESCE(SUM(prezzo), 0) FROM cantante WHERE nome_cantante IN (:nomi)")
+    suspend fun getPrezzoTotale(nomi: List<String>): Int
+
     // --- BUNDLE E OFFERTE ---
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertBundle(bundle: Bundle)
