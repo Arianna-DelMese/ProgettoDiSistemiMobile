@@ -17,9 +17,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.progettodisistemimobile.data.Cantante
 import com.example.progettodisistemimobile.data.MainViewModel
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.unit.sp
 
 @Composable
-fun NuovaSquadraScreen(viewModel: MainViewModel) {
+fun NuovaSquadraScreen(
+    viewModel: MainViewModel,
+    onCreaNuovaLega: () -> Unit,
+    onAggiungiALegaEsistente: () -> Unit
+) {
     val username by viewModel.currentUser.collectAsState()
     val tokenDisponibili by viewModel.getTokens(username).collectAsState(initial = 0)
     val cantanti by viewModel.tuttiICantantiPerPunti.collectAsState(initial = emptyList())
@@ -27,6 +36,8 @@ fun NuovaSquadraScreen(viewModel: MainViewModel) {
     val capitano by viewModel.capitano.collectAsState()
 
     var ricerca by rememberSaveable { mutableStateOf("") }
+    // 0 = crea in una nuova lega, 1 = aggiungi a lega esistente
+    var modalitaSelezionata by rememberSaveable { mutableIntStateOf(0) }
 
     // Costo totale: sommo i prezzi dei cantanti selezionati
     val costoTotale = cantanti
@@ -42,6 +53,44 @@ fun NuovaSquadraScreen(viewModel: MainViewModel) {
     Column(modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)) {
 
         Spacer(Modifier.height(16.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Crea in una nuova lega",
+                fontSize = 21.sp,
+                maxLines = 2,
+                textAlign = TextAlign.Center,
+                fontWeight = if (modalitaSelezionata == 0) FontWeight.Bold else FontWeight.Normal,
+                textDecoration = TextDecoration.Underline,
+                color = if (modalitaSelezionata == 0) MaterialTheme.colorScheme.primary else Color.Gray,
+                modifier = Modifier
+                    .weight(1f)
+                    .clickable { modalitaSelezionata = 0 }
+                    .padding(horizontal = 8.dp)
+            )
+
+            Box(modifier = Modifier.width(1.dp).height(40.dp).background(Color.LightGray))
+
+            Text(
+                text = "Aggiungi a lega esistente",
+                fontSize = 21.sp,
+                maxLines = 2,
+                textAlign = TextAlign.Center,
+                fontWeight = if (modalitaSelezionata == 1) FontWeight.Bold else FontWeight.Normal,
+                textDecoration = TextDecoration.Underline,
+                color = if (modalitaSelezionata == 1) MaterialTheme.colorScheme.primary else Color.Gray,
+                modifier = Modifier
+                    .weight(1f)
+                    .clickable { modalitaSelezionata = 1 }
+                    .padding(horizontal = 8.dp)
+            )
+        }
+
+        HorizontalDivider(thickness = 1.dp, color = Color.LightGray.copy(alpha = 0.5f))
+
+        Spacer(Modifier.height(12.dp))
 
         Text(
             text = "I miei token: $tokenDisponibili",
@@ -95,6 +144,20 @@ fun NuovaSquadraScreen(viewModel: MainViewModel) {
                 else MaterialTheme.colorScheme.onSurface
             )
         }
+        val squadraCompleta = selezionati.size == MainViewModel.CANTANTI_PER_SQUADRA
+        val capitanoScelto = capitano != null
+
+        Button(
+            onClick = {
+                if (modalitaSelezionata == 0) onCreaNuovaLega() else onAggiungiALegaEsistente()
+            },
+            enabled = squadraCompleta && capitanoScelto && costoTotale <= tokenDisponibili,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Conferma")
+        }
+
+        Spacer(Modifier.height(16.dp))
     }
 }
 

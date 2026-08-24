@@ -43,7 +43,11 @@ fun MainAppScaffold() {
                 LeMieLegheScreen(navController, mainViewModel)
             }
             composable(Screen.NuovaSquadra.route) {
-                NuovaSquadraScreen(mainViewModel)
+                NuovaSquadraScreen(
+                    viewModel = mainViewModel,
+                    onCreaNuovaLega = { /* TODO: schermata Crea Lega */ },
+                    onAggiungiALegaEsistente = { /* TODO: schermata Aggiungi a Lega */ }
+                )
             }
             composable(Screen.Shop.route) {
                 ShopScreen()
