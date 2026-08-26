@@ -31,16 +31,12 @@ fun LegaHeaderSection(
     val context = LocalContext.current
     
     Column {
-        // --- HEADER: IMMAGINE, NOME E BOTTONI ---
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = onBack, modifier = Modifier.padding(end = 4.dp)) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Indietro"
-                )
+                Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Indietro")
             }
 
             if (lega?.immagine != null) {
@@ -74,32 +70,28 @@ fun LegaHeaderSection(
             )
 
             Row(verticalAlignment = Alignment.CenterVertically) {
+                // Tasto Invita senza bordi
                 TextButton(
                     onClick = {
-                        val shareText = "Entra nella mia lega '${lega?.nome_lega ?: nomeLegaFallback}' di Fantasanremo! Codice: ${lega?.id_lega ?: 0}"
-                        val sendIntent: Intent = Intent().apply {
+                        val shareText = "Entra nella mia lega '${lega?.nome_lega ?: nomeLegaFallback}'! Codice: ${lega?.id_lega ?: 0}"
+                        val sendIntent = Intent().apply {
                             action = Intent.ACTION_SEND
                             putExtra(Intent.EXTRA_TEXT, shareText)
                             type = "text/plain"
                         }
-                        val shareIntent = Intent.createChooser(sendIntent, "Condividi Lega")
-                        context.startActivity(shareIntent)
+                        context.startActivity(Intent.createChooser(sendIntent, "Condividi"))
                     },
-                    contentPadding = PaddingValues(horizontal = 8.dp),
-                    modifier = Modifier.height(32.dp).padding(horizontal = 2.dp)
+                    contentPadding = PaddingValues(horizontal = 4.dp)
                 ) {
-                    Icon(Icons.Default.Link, null, modifier = Modifier.size(16.dp))
+                    Icon(Icons.Default.Link, null, modifier = Modifier.size(18.dp))
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("Invita", fontSize = 12.sp)
+                    Text("Invita", fontSize = 14.sp)
                 }
                 
                 if (partecipazione?.stato == true) {
-                    TextButton(
-                        onClick = { /* Azione Modifica */ },
-                        contentPadding = PaddingValues(horizontal = 8.dp),
-                        modifier = Modifier.height(32.dp).padding(horizontal = 2.dp)
-                    ) {
-                        Text("Modifica", fontSize = 12.sp)
+                    // Tasto Modifica senza bordi
+                    TextButton(onClick = { /* Modifica */ }, contentPadding = PaddingValues(horizontal = 4.dp)) {
+                        Text("Modifica", fontSize = 14.sp)
                     }
                 }
             }

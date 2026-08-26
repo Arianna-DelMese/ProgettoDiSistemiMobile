@@ -75,7 +75,7 @@ fun UserRankingRow(position: Int, item: UserRankingItem) {
                 fontSize = 16.sp
             )
             Text(
-                text = "Capitano: ${item.nomeCapitano ?: "-"}",
+                text = item.nomeCapitano ?: "-",
                 style = MaterialTheme.typography.bodySmall,
                 color = Color.Gray
             )
