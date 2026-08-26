@@ -20,6 +20,7 @@ import com.example.progettodisistemimobile.screens.leghe.LeMieLegheScreen
 import com.example.progettodisistemimobile.screens.leghe.detail.LegaDetailScreen
 import com.example.progettodisistemimobile.screens.leghe.formazione.ModificaFormazioneScreen
 import com.example.progettodisistemimobile.screens.profilo.ProfiloScreen
+import com.example.progettodisistemimobile.screens.shop.ShopScreen
 
 @Composable
 fun MainAppScaffold() {
@@ -110,8 +111,6 @@ fun BottomNavigationBar(navController: NavHostController) {
         val currentRoute = navBackStackEntry?.destination?.route
 
         screensInBottomBar.forEach { screen ->
-            // Il tab è considerato selezionato se la rotta corrisponde esattamente
-            // OPPURE se siamo in una sotto-pagina specifica di quel tab
             val isSelected = when(screen) {
                 Screen.LeMieLeghe -> currentRoute == Screen.LeMieLeghe.route ||
                         currentRoute?.startsWith("dettaglio_lega") == true ||
@@ -123,18 +122,14 @@ fun BottomNavigationBar(navController: NavHostController) {
 
             NavigationBarItem(
                 selected = isSelected,
-                alwaysShowLabel = true, // Forza il testo a restare sempre visibile
+                alwaysShowLabel = true,
                 onClick = {
-                    // Navighiamo alla root del tab solo se non siamo già sulla root esatta.
                     if (currentRoute != screen.route) {
                         navController.navigate(screen.route) {
                             popUpTo(navController.graph.startDestinationId) {
                                 saveState = true
                             }
                             launchSingleTop = true
-                            // Ripristiniamo lo stato solo se stiamo cambiando tab.
-                            // Se eravamo già in questo tab (isSelected == true) ma in una sotto-pagina,
-                            // evitiamo restoreState per tornare alla root pulita (LeMieLegheScreen).
                             restoreState = !isSelected
                         }
                     }

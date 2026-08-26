@@ -25,6 +25,9 @@ interface AppDao {
     @Query("UPDATE utente SET foto_profilo = :nuovaFoto WHERE nome_utente = :username")
     suspend fun updateFotoProfilo(username: String, nuovaFoto: String)
 
+    @Query("UPDATE utente SET dati_biomedici = :dati WHERE nome_utente = :username")
+    suspend fun updateDatiBiomedici(username: String, dati: String)
+
     @Query("SELECT EXISTS(SELECT 1 FROM utente WHERE nome_utente = :username)")
     suspend fun utenteEsiste(username: String): Boolean
 

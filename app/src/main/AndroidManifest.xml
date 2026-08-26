@@ -4,7 +4,7 @@
 
     <uses-feature android:name="android.hardware.camera" android:required="false" />
     <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.USE_BIOMETRIC" />
 
     <application
         android:allowBackup="true"
@@ -33,7 +33,7 @@
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data
-                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:name="android.support.FILE_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
     </application>

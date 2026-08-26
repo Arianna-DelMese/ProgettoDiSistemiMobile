@@ -1,93 +1,27 @@
-package com.example.progettodisistemimobile.screens
+package com.example.progettodisistemimobile.screens.shop
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ShoppingBasket
 import androidx.compose.material.icons.filled.Token
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.progettodisistemimobile.data.Bundle
-import com.example.progettodisistemimobile.data.MainViewModel
-
-@Composable
-fun ShopScreen(viewModel: MainViewModel = viewModel()) {
-    val currentUsername by viewModel.currentUser.collectAsState()
-    val tokens by viewModel.getTokens(currentUsername).collectAsState(initial = 0)
-    val bundles by viewModel.tuttiIBundle.collectAsState(initial = emptyList())
-
-    // Ordiniamo i bundle per ID come richiesto
-    val sortedBundles = remember(bundles) { bundles.sortedBy { it.id_bundle } }
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        // --- HEADER ---
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(bottom = 8.dp)
-        ) {
-            Text(
-                text = "Shop",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold
-            )
-            Spacer(modifier = Modifier.width(12.dp))
-            Icon(
-                imageVector = Icons.Default.ShoppingBasket,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(32.dp)
-            )
-        }
-
-        Text(
-            text = "I miei token: $tokens",
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.secondary,
-            modifier = Modifier.padding(bottom = 24.dp)
-        )
-
-        // --- GRID BUNDLE ---
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            modifier = Modifier.fillMaxSize()
-        ) {
-            items(sortedBundles) { bundle ->
-                BundleCard(
-                    bundle = bundle,
-                    onClick = { viewModel.acquistaBundle(currentUsername, bundle) }
-                )
-            }
-        }
-    }
-}
 
 @Composable
 fun BundleCard(bundle: Bundle, onClick: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .aspectRatio(1f) // Lo rende quadrato
+            .aspectRatio(1f)
             .clickable { onClick() },
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
@@ -108,7 +42,7 @@ fun BundleCard(bundle: Bundle, onClick: () -> Unit) {
                     Icon(
                         imageVector = Icons.Default.Token,
                         contentDescription = null,
-                        tint = Color(0xFFFFD700), // Colore oro
+                        tint = Color(0xFFFFD700), // Oro
                         modifier = Modifier.size(48.dp)
                     )
                     Text(

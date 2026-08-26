@@ -71,6 +71,9 @@ dependencies {
     // DataStore (Settings)
     implementation(libs.androidx.datastore.preferences)
 
+    // Biometric
+    implementation(libs.androidx.biometric)
+
     // Test dependencies
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
