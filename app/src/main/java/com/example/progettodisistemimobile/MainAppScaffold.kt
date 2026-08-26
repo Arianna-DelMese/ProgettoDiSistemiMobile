@@ -50,7 +50,7 @@ fun MainAppScaffold() {
                 )
             }
             composable(Screen.Shop.route) {
-                ShopScreen()
+                ShopScreen(mainViewModel)
             }
             composable(Screen.Profilo.route) {
                 ProfiloScreen(mainViewModel)
@@ -123,7 +123,7 @@ fun BottomNavigationBar(navController: NavHostController) {
 
             NavigationBarItem(
                 selected = isSelected,
-                alwaysShowLabel = true,
+                alwaysShowLabel = true, // Forza il testo a restare sempre visibile
                 onClick = {
                     // Navighiamo alla root del tab solo se non siamo già sulla root esatta.
                     if (currentRoute != screen.route) {
