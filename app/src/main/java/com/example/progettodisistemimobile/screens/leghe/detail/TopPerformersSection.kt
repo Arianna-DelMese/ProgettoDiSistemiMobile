@@ -1,4 +1,4 @@
-package com.example.progettodisistemimobile.screens.leghe
+package com.example.progettodisistemimobile.screens.leghe.detail
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -88,7 +88,7 @@ fun HorizontalRankingRow(squadra: List<Cantante>) {
                 }
             }
 
-            // Divisore verticale
+            // Divisore verticale sottile
             VerticalDivider(
                 modifier = Modifier.height(40.dp).padding(horizontal = 8.dp),
                 thickness = 1.dp,

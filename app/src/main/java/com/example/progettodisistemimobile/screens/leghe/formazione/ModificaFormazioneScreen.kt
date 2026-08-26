@@ -1,4 +1,4 @@
-package com.example.progettodisistemimobile.screens.leghe
+package com.example.progettodisistemimobile.screens.leghe.formazione
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -45,11 +45,9 @@ fun ModificaFormazioneScreen(
     var hoveredIndex by remember { mutableStateOf<Int?>(null) }
     var draggingOffsetY by remember { mutableStateOf(0f) }
     
-    // Mappa coordinate statiche degli item
     val itemCoords = remember { mutableStateMapOf<Int, Pair<Float, Float>>() }
 
     Column(modifier = Modifier.fillMaxSize()) {
-        // --- HEADER COMPATTO ---
         Surface(shadowElevation = 2.dp) {
             Box(
                 modifier = Modifier
@@ -85,7 +83,6 @@ fun ModificaFormazioneScreen(
                 .padding(horizontal = 16.dp),
             contentPadding = PaddingValues(bottom = 24.dp)
         ) {
-            // --- TITOLARI ---
             item {
                 Text(
                     text = "Titolari",
@@ -109,8 +106,6 @@ fun ModificaFormazioneScreen(
                     onDragStart = { draggedIndex = index },
                     onDrag = { deltaY ->
                         draggingOffsetY += deltaY
-                        
-                        // CALCOLO HOVER CALIBRATO AL CENTRO
                         val bounds = itemCoords[index] ?: return@DraggableSingerCard
                         val currentCenterY = (bounds.first + bounds.second) / 2 + draggingOffsetY
                         
@@ -130,13 +125,11 @@ fun ModificaFormazioneScreen(
                     },
                     onCaptainClick = { viewModel.impostaCapitano(idLega, currentUsername, cantante, squadra) },
                     onPositioned = { top, bottom -> 
-                        // Salviamo le coordinate solo se non stiamo trascinando l'item stesso
                         if (draggedIndex == null) itemCoords[index] = top to bottom 
                     }
                 )
             }
 
-            // --- RISERVE ---
             item {
                 Spacer(Modifier.height(24.dp))
                 Text(
@@ -210,7 +203,6 @@ fun DraggableSingerCard(
             .offset { IntOffset(0, offsetY.roundToInt()) }
             .zIndex(if (isDragged) 10f else 1f)
             .onGloballyPositioned { layout ->
-                // Comunichiamo la posizione solo se l'item è fermo
                 if (!isDragged) {
                     val top = layout.positionInRoot().y
                     onPositioned(top, top + layout.size.height)
@@ -256,7 +248,7 @@ fun DraggableSingerCard(
                         }
                 )
 
-                Spacer(Modifier.width(16.dp))
+                Spacer(Modifier.width(12.dp))
 
                 Column(modifier = Modifier.weight(1f)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {

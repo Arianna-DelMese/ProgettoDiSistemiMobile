@@ -16,9 +16,9 @@ import androidx.navigation.navArgument
 import com.example.progettodisistemimobile.data.MainViewModel
 import com.example.progettodisistemimobile.screens.*
 import com.example.progettodisistemimobile.screens.home.HomeScreen
-import com.example.progettodisistemimobile.screens.leghe.LegaDetailScreen
 import com.example.progettodisistemimobile.screens.leghe.LeMieLegheScreen
-import com.example.progettodisistemimobile.screens.leghe.ModificaFormazioneScreen
+import com.example.progettodisistemimobile.screens.leghe.detail.LegaDetailScreen
+import com.example.progettodisistemimobile.screens.leghe.formazione.ModificaFormazioneScreen
 import com.example.progettodisistemimobile.screens.profilo.ProfiloScreen
 
 @Composable
