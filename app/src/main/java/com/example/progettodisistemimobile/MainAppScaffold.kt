@@ -55,7 +55,7 @@ fun MainAppScaffold() {
             composable(Screen.Profilo.route) {
                 ProfiloScreen(mainViewModel)
             }
-            
+
             composable(
                 route = Screen.DettaglioLega.route,
                 arguments = listOf(
@@ -66,8 +66,8 @@ fun MainAppScaffold() {
                 val idLega = backStackEntry.arguments?.getInt("idLega") ?: 0
                 val nomeLega = backStackEntry.arguments?.getString("nomeLega") ?: ""
                 LegaDetailScreen(
-                    idLega = idLega, 
-                    nomeLega = nomeLega, 
+                    idLega = idLega,
+                    nomeLega = nomeLega,
                     onBack = { navController.popBackStack() },
                     navController = navController,
                     viewModel = mainViewModel
@@ -78,7 +78,7 @@ fun MainAppScaffold() {
                 CreaLegaScreen(
                     viewModel = mainViewModel,
                     onBack = { navController.popBackStack() },
-                    onLegaCreata = { idLega ->
+                    onLegaCreata = { _ ->
                         navController.navigate(Screen.LeMieLeghe.route) {
                             popUpTo(Screen.NuovaSquadra.route) { inclusive = true }
                         }
@@ -110,17 +110,32 @@ fun BottomNavigationBar(navController: NavHostController) {
         val currentRoute = navBackStackEntry?.destination?.route
 
         screensInBottomBar.forEach { screen ->
-            val isSelected = currentRoute == screen.route
+            // Il tab è considerato selezionato se la rotta corrisponde esattamente
+            // OPPURE se siamo in una sotto-pagina specifica di quel tab
+            val isSelected = when(screen) {
+                Screen.LeMieLeghe -> currentRoute == Screen.LeMieLeghe.route ||
+                        currentRoute?.startsWith("dettaglio_lega") == true ||
+                        currentRoute?.startsWith("modifica_formazione") == true
+                Screen.NuovaSquadra -> currentRoute == Screen.NuovaSquadra.route ||
+                        currentRoute == "crea_lega"
+                else -> currentRoute == screen.route
+            }
 
             NavigationBarItem(
                 selected = isSelected,
-                alwaysShowLabel = true, // Forza il testo a restare sempre visibile
+                alwaysShowLabel = true,
                 onClick = {
+                    // Navighiamo alla root del tab solo se non siamo già sulla root esatta.
                     if (currentRoute != screen.route) {
                         navController.navigate(screen.route) {
-                            popUpTo(navController.graph.startDestinationId) { saveState = true }
+                            popUpTo(navController.graph.startDestinationId) {
+                                saveState = true
+                            }
                             launchSingleTop = true
-                            restoreState = true
+                            // Ripristiniamo lo stato solo se stiamo cambiando tab.
+                            // Se eravamo già in questo tab (isSelected == true) ma in una sotto-pagina,
+                            // evitiamo restoreState per tornare alla root pulita (LeMieLegheScreen).
+                            restoreState = !isSelected
                         }
                     }
                 },

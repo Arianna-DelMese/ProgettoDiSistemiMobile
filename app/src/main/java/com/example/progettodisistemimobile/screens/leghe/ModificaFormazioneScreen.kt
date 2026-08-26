@@ -2,7 +2,7 @@ package com.example.progettodisistemimobile.screens.leghe
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -31,7 +31,6 @@ import com.example.progettodisistemimobile.data.Cantante
 import com.example.progettodisistemimobile.data.MainViewModel
 import kotlin.math.roundToInt
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ModificaFormazioneScreen(
     idLega: Int,
@@ -42,62 +41,58 @@ fun ModificaFormazioneScreen(
     val lega by viewModel.getLega(idLega).collectAsState(initial = null)
     val squadra by viewModel.getSquadra(idLega, currentUsername).collectAsState(initial = emptyList())
 
-    // Stati per la gestione del Drag and Drop manuale
     var draggedIndex by remember { mutableStateOf<Int?>(null) }
     var hoveredIndex by remember { mutableStateOf<Int?>(null) }
     var draggingOffsetY by remember { mutableStateOf(0f) }
     
-    // Mappa per conoscere le coordinate Y di ogni item per gestire l'hover
+    // Mappa coordinate statiche degli item
     val itemCoords = remember { mutableStateMapOf<Int, Pair<Float, Float>>() }
 
-    Scaffold(
-        topBar = {
-            Surface(shadowElevation = 3.dp) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .statusBarsPadding()
-                        .padding(vertical = 8.dp),
-                    contentAlignment = Alignment.Center
+    Column(modifier = Modifier.fillMaxSize()) {
+        // --- HEADER COMPATTO ---
+        Surface(shadowElevation = 2.dp) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                IconButton(
+                    onClick = onBack,
+                    modifier = Modifier.align(Alignment.CenterStart)
                 ) {
-                    IconButton(
-                        onClick = onBack,
-                        modifier = Modifier.align(Alignment.CenterStart)
-                    ) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Indietro")
-                    }
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(
-                            text = "La mia formazione",
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            text = lega?.nome_lega ?: "",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.secondary,
-                            textAlign = TextAlign.Center
-                        )
-                    }
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, "Indietro")
+                }
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = "La mia formazione",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = lega?.nome_lega ?: "",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.secondary,
+                        textAlign = TextAlign.Center
+                    )
                 }
             }
         }
-    ) { innerPadding ->
+
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
                 .padding(horizontal = 16.dp),
-            contentPadding = PaddingValues(vertical = 16.dp)
+            contentPadding = PaddingValues(bottom = 24.dp)
         ) {
-            // --- SEZIONE TITOLARI (Posizioni 0-4) ---
+            // --- TITOLARI ---
             item {
                 Text(
                     text = "Titolari",
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.ExtraBold,
-                    modifier = Modifier.padding(vertical = 12.dp)
+                    modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
                 )
             }
 
@@ -114,9 +109,15 @@ fun ModificaFormazioneScreen(
                     onDragStart = { draggedIndex = index },
                     onDrag = { deltaY ->
                         draggingOffsetY += deltaY
-                        val currentY = (itemCoords[index]?.first ?: 0f) + draggingOffsetY
-                        hoveredIndex = itemCoords.entries.find { 
-                            it.key != index && currentY > it.value.first && currentY < it.value.second 
+                        
+                        // CALCOLO HOVER CALIBRATO AL CENTRO
+                        val bounds = itemCoords[index] ?: return@DraggableSingerCard
+                        val currentCenterY = (bounds.first + bounds.second) / 2 + draggingOffsetY
+                        
+                        hoveredIndex = itemCoords.entries.find { entry ->
+                            entry.key != index && 
+                            currentCenterY > entry.value.first && 
+                            currentCenterY < entry.value.second
                         }?.key
                     },
                     onDragEnd = {
@@ -128,11 +129,14 @@ fun ModificaFormazioneScreen(
                         draggingOffsetY = 0f
                     },
                     onCaptainClick = { viewModel.impostaCapitano(idLega, currentUsername, cantante, squadra) },
-                    onPositioned = { top, bottom -> itemCoords[index] = top to bottom }
+                    onPositioned = { top, bottom -> 
+                        // Salviamo le coordinate solo se non stiamo trascinando l'item stesso
+                        if (draggedIndex == null) itemCoords[index] = top to bottom 
+                    }
                 )
             }
 
-            // --- SEZIONE RISERVE (Posizioni 5-6) ---
+            // --- RISERVE ---
             item {
                 Spacer(Modifier.height(24.dp))
                 Text(
@@ -140,7 +144,7 @@ fun ModificaFormazioneScreen(
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.tertiary,
                     fontWeight = FontWeight.ExtraBold,
-                    modifier = Modifier.padding(vertical = 12.dp)
+                    modifier = Modifier.padding(bottom = 8.dp)
                 )
             }
 
@@ -158,9 +162,13 @@ fun ModificaFormazioneScreen(
                     onDragStart = { draggedIndex = actualIndex },
                     onDrag = { deltaY ->
                         draggingOffsetY += deltaY
-                        val currentY = (itemCoords[actualIndex]?.first ?: 0f) + draggingOffsetY
-                        hoveredIndex = itemCoords.entries.find { 
-                            it.key != actualIndex && currentY > it.value.first && currentY < it.value.second 
+                        val bounds = itemCoords[actualIndex] ?: return@DraggableSingerCard
+                        val currentCenterY = (bounds.first + bounds.second) / 2 + draggingOffsetY
+                        
+                        hoveredIndex = itemCoords.entries.find { entry ->
+                            entry.key != actualIndex && 
+                            currentCenterY > entry.value.first && 
+                            currentCenterY < entry.value.second
                         }?.key
                     },
                     onDragEnd = {
@@ -172,7 +180,9 @@ fun ModificaFormazioneScreen(
                         draggingOffsetY = 0f
                     },
                     onCaptainClick = {},
-                    onPositioned = { top, bottom -> itemCoords[actualIndex] = top to bottom }
+                    onPositioned = { top, bottom -> 
+                        if (draggedIndex == null) itemCoords[actualIndex] = top to bottom 
+                    }
                 )
             }
         }
@@ -196,19 +206,22 @@ fun DraggableSingerCard(
 ) {
     Box(
         modifier = Modifier
-            .padding(vertical = 6.dp)
+            .padding(vertical = 4.dp)
             .offset { IntOffset(0, offsetY.roundToInt()) }
             .zIndex(if (isDragged) 10f else 1f)
             .onGloballyPositioned { layout ->
-                val top = layout.positionInRoot().y
-                onPositioned(top, top + layout.size.height)
+                // Comunichiamo la posizione solo se l'item è fermo
+                if (!isDragged) {
+                    val top = layout.positionInRoot().y
+                    onPositioned(top, top + layout.size.height)
+                }
             }
     ) {
         Card(
             modifier = Modifier
                 .fillMaxWidth()
                 .border(
-                    width = if (isHovered) 3.dp else 1.dp,
+                    width = if (isHovered) 2.5.dp else 1.dp,
                     color = if (isHovered) MaterialTheme.colorScheme.primary 
                             else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
                     shape = RoundedCornerShape(12.dp)
@@ -223,15 +236,15 @@ fun DraggableSingerCard(
                 modifier = Modifier.padding(12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Maniglia per il trascinamento
                 Icon(
                     imageVector = Icons.Default.DragHandle,
                     contentDescription = "Muovi",
                     tint = MaterialTheme.colorScheme.outline,
                     modifier = Modifier
-                        .size(32.dp)
-                        .pointerInput(Unit) {
-                            detectDragGesturesAfterLongPress(
+                        .size(40.dp)
+                        .padding(4.dp)
+                        .pointerInput(cantante.nome_cantante) {
+                            detectDragGestures(
                                 onDragStart = { onDragStart() },
                                 onDrag = { change, amount -> 
                                     change.consume()
@@ -245,13 +258,13 @@ fun DraggableSingerCard(
 
                 Spacer(Modifier.width(16.dp))
 
-                // Info Cantante
                 Column(modifier = Modifier.weight(1f)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
                             text = cantante.nome_cantante,
                             fontWeight = FontWeight.Bold,
                             fontSize = 17.sp,
+                            lineHeight = 20.sp,
                             modifier = Modifier.weight(1f, fill = false)
                         )
                         Spacer(Modifier.width(8.dp))
@@ -269,7 +282,6 @@ fun DraggableSingerCard(
                     )
                 }
 
-                // Stella Capitano
                 if (canBeCaptain) {
                     IconButton(onClick = onCaptainClick) {
                         Icon(
