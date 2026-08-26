@@ -26,6 +26,7 @@ fun showBiometricPurchasePrompt(
 
             override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
                 super.onAuthenticationError(errorCode, errString)
+                // Se l'utente annulla o c'è un errore, non facciamo nulla
             }
 
             override fun onAuthenticationFailed() {
@@ -37,9 +38,13 @@ fun showBiometricPurchasePrompt(
     val promptInfo = BiometricPrompt.PromptInfo.Builder()
         .setTitle("Conferma Acquisto")
         .setSubtitle("Autorizza l'acquisto di ${bundle.token} Token per ${bundle.prezzo}€")
-        .setNegativeButtonText("Annulla")
-        .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG)
+        // Permettiamo l'uso di Biometria Forte o del PIN/Sequenza del dispositivo
+        .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.DEVICE_CREDENTIAL)
         .build()
 
-    biometricPrompt.authenticate(promptInfo)
+    try {
+        biometricPrompt.authenticate(promptInfo)
+    } catch (e: Exception) {
+        e.printStackTrace()
+    }
 }
