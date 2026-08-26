@@ -123,6 +123,9 @@ interface AppDao {
     @Query("SELECT * FROM bundle")
     fun getAllBundles(): Flow<List<Bundle>>
 
+    @Query("SELECT id_bundle FROM offerta_utente WHERE nome_utente = :username")
+    fun getPurchasedBundleIds(username: String): Flow<List<Int>>
+
     @Query("SELECT * FROM offerta_utente WHERE nome_utente = :username AND id_bundle = :idBundle")
     suspend fun getOffertaUtente(username: String, idBundle: Int): OffertaUtente?
 

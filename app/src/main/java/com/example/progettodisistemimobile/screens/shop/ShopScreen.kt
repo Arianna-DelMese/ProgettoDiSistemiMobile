@@ -16,31 +16,23 @@ fun ShopScreen(viewModel: MainViewModel) {
     val currentUsername by viewModel.currentUser.collectAsState()
     val tokens by viewModel.getTokens(currentUsername).collectAsState(initial = 0)
     val bundles by viewModel.tuttiIBundle.collectAsState(initial = emptyList())
+    val purchasedBundleIds by viewModel.purchasedBundleIds.collectAsState()
 
     val sortedBundles = remember(bundles) { bundles.sortedBy { it.id_bundle } }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        // --- HEADER E TOKEN ---
+    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         ShopHeaderSection(tokens = tokens)
-
         Spacer(modifier = Modifier.height(16.dp))
-
-        // --- GRID BUNDLE ---
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            modifier = Modifier.fillMaxSize()
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(sortedBundles) { bundle ->
                 BundleCard(
                     bundle = bundle,
+                    isFirstPurchase = bundle.id_bundle !in purchasedBundleIds,
                     onClick = {
-                        // Logica acquisto con biometrico (dal file BiometricPurchaseHelper.kt)
                         showBiometricPurchasePrompt(context, bundle) {
                             viewModel.acquistaBundle(currentUsername, bundle)
                         }
