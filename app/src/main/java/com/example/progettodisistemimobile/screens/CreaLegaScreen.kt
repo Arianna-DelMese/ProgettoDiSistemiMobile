@@ -60,12 +60,16 @@ fun CreaLegaScreen(
     var posizione by remember { mutableStateOf<PosizioneTrovata?>(null) }
     var cercandoPosizione by remember { mutableStateOf(false) }
     var posizioneNegata by remember { mutableStateOf(false) }
+    var posizioneFallita by remember { mutableStateOf(false) }
 
     // Funzione locale: legge la posizione e aggiorna lo stato
     fun ottieniPosizione() {
         scope.launch {
             cercandoPosizione = true
-            posizione = leggiPosizione(context)
+            posizioneFallita = false
+            val risultato = leggiPosizione(context)
+            posizione = risultato
+            posizioneFallita = risultato == null
             cercandoPosizione = false
         }
     }
@@ -299,12 +303,13 @@ fun CreaLegaScreen(
                 Spacer(Modifier.height(8.dp))
 
                 Text(
-                    text = if (posizioneNegata)
-                        "Senza posizione la lega sarà comunque pubblica, ma non comparirà sulla mappa."
-                    else
-                        "Serve per far trovare la tua lega a chi cerca per zona. È facoltativa.",
+                    text = when {
+                        posizioneNegata -> "Senza posizione la lega sarà comunque pubblica, ma non comparirà sulla mappa."
+                        posizioneFallita -> "Non sono riuscita a rilevare la posizione. Controlla che il GPS sia attivo e riprova."
+                        else -> "Serve per far trovare la tua lega a chi cerca per zona. È facoltativa."
+                    },
                     style = MaterialTheme.typography.bodySmall,
-                    color = if (posizioneNegata) MaterialTheme.colorScheme.error
+                    color = if (posizioneNegata || posizioneFallita) MaterialTheme.colorScheme.error
                     else MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
