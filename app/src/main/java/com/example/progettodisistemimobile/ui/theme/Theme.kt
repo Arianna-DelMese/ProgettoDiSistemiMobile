@@ -25,7 +25,7 @@ private val LightColorScheme = lightColorScheme(
 @Composable
 fun ProgettoDiSistemiMobileTheme(
     themeMode: String = "Sistema",
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val darkTheme = when (themeMode) {
