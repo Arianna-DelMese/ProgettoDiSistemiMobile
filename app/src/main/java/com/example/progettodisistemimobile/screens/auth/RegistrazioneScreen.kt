@@ -180,16 +180,6 @@ fun RegistrazioneScreen(
                 }
             }
 
-            Spacer(Modifier.height(24.dp))
-
-            OutlinedButton(
-                onClick = { /* TODO: Credential Manager + Google Sign In */ },
-                enabled = false,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Continua con Google")
-            }
-
             Spacer(Modifier.height(32.dp))
         }
     }
