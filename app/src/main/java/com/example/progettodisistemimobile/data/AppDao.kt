@@ -91,6 +91,21 @@ interface AppDao {
     @Query("SELECT * FROM utente_in_lega WHERE id_lega = :idLega AND stato = 1 LIMIT 1")
     suspend fun getCreatoreLega(idLega: Int): UtenteInLega?
 
+    /**
+     * Leghe pubbliche a cui l'utente NON è già iscritto, filtrate per nome.
+     * Passare "" come filtro per ottenerle tutte.
+     */
+    @Query("""
+        SELECT * FROM lega
+        WHERE stato = 1
+          AND nome_lega LIKE '%' || :filtro || '%'
+          AND id_lega NOT IN (
+              SELECT id_lega FROM utente_in_lega WHERE nome_utente = :username
+          )
+        ORDER BY nome_lega
+    """)
+    fun cercaLeghePubbliche(filtro: String, username: String): Flow<List<Lega>>
+
     // --- SQUADRA ---
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertComposizione(composizione: ComposizioneSquadra)

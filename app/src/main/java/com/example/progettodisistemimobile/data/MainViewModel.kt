@@ -180,4 +180,35 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             onFatto(idLega)
         }
     }
+
+    fun cercaLeghe(filtro: String) = dao.cercaLeghePubbliche(filtro, currentUser.value)
+
+    /**
+     * Iscrive l'utente a una lega esistente e vi salva la squadra selezionata.
+     * Stessa logica di creaLegaConSquadra, ma senza creare la lega.
+     */
+    fun uniscitiALegaConSquadra(idLega: Int, onFatto: () -> Unit) {
+        val username = currentUser.value
+        val selezione = _cantantiSelezionati.value
+        val nomeCapitano = _capitano.value
+
+        if (username.isBlank() || selezione.size != CANTANTI_PER_SQUADRA || nomeCapitano == null) return
+
+        viewModelScope.launch {
+            // Chi entra dopo non è il creatore, quindi stato = false
+            dao.joinLega(UtenteInLega(username, idLega, false, 0))
+
+            dao.insertComposizione(ComposizioneSquadra(username, idLega, nomeCapitano, 0))
+            selezione.filter { it != nomeCapitano }.forEachIndexed { indice, nome ->
+                dao.insertComposizione(ComposizioneSquadra(username, idLega, nome, indice + 1))
+            }
+
+            val costo = dao.getPrezzoTotale(selezione)
+            dao.aggiungiToken(username, -costo)
+
+            resetSelezione()
+            onFatto()
+        }
+    }
+
 }
