@@ -99,7 +99,7 @@ fun LegaHeaderSection(
                         onClick = onAbbandonaLega,
                         contentPadding = PaddingValues(horizontal = 4.dp)
                     ) {
-                        Text("Abbandona", fontSize = 14.sp, color = MaterialTheme.colorScheme.error)
+                        Text("Abbandona", fontSize = 14.sp)
                     }
                 }
             }
