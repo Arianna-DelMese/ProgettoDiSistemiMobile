@@ -106,6 +106,27 @@ interface AppDao {
     """)
     fun cercaLeghePubbliche(filtro: String, username: String): Flow<List<Lega>>
 
+    @Query("""
+        UPDATE lega SET 
+            nome_lega = :nome,
+            descrizione = :descrizione,
+            stato = :pubblica,
+            immagine = :immagine,
+            latitudine = :latitudine,
+            longitudine = :longitudine
+        WHERE id_lega = :idLega
+    """)
+    suspend fun aggiornaLega(
+        idLega: Int,
+        nome: String,
+        descrizione: String,
+        pubblica: Boolean,
+        immagine: String?,
+        latitudine: Double?,
+        longitudine: Double?
+    )
+
+    // --- SQUADRA ---
     // --- SQUADRA ---
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertComposizione(composizione: ComposizioneSquadra)

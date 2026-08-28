@@ -36,7 +36,8 @@ fun LegaDetailScreen(
             lega = lega,
             nomeLegaFallback = nomeLega,
             partecipazione = partecipazione,
-            onBack = onBack
+            onBack = onBack,
+            onModificaLega = { navController.navigate("modifica_lega/$idLega") },
         )
 
         Spacer(modifier = Modifier.height(12.dp))

@@ -41,7 +41,8 @@ import kotlinx.coroutines.launch
 fun CreaLegaScreen(
     viewModel: MainViewModel,
     onBack: () -> Unit,
-    onLegaCreata: (Int) -> Unit
+    onLegaCreata: (Int) -> Unit,
+    idLegaDaModificare: Int? = null   // null = creazione, altrimenti modifica
 ) {
     var nome by rememberSaveable { mutableStateOf("") }
     var descrizione by rememberSaveable { mutableStateOf("") }
@@ -61,6 +62,30 @@ fun CreaLegaScreen(
     var cercandoPosizione by remember { mutableStateOf(false) }
     var posizioneNegata by remember { mutableStateOf(false) }
     var posizioneFallita by remember { mutableStateOf(false) }
+
+    // MODIFICA: se sto modificando una lega esistente, precarico i suoi dati
+    val inModifica = idLegaDaModificare != null
+
+    val legaEsistente by (
+            if (idLegaDaModificare != null) viewModel.getLega(idLegaDaModificare)
+            else kotlinx.coroutines.flow.flowOf(null)
+            ).collectAsState(initial = null)
+
+    var campiPrecaricati by remember { mutableStateOf(false) }
+
+    LaunchedEffect(legaEsistente) {
+        val lega = legaEsistente
+        if (lega != null && !campiPrecaricati) {
+            nome = lega.nome_lega
+            descrizione = lega.descrizione
+            pubblica = lega.stato
+            immagineUri = lega.immagine?.let { Uri.parse(it) }
+            if (lega.latitudine != null && lega.longitudine != null) {
+                posizione = PosizioneTrovata(lega.latitudine, lega.longitudine, null)
+            }
+            campiPrecaricati = true
+        }
+    }
 
     // Funzione locale: legge la posizione e aggiorna lo stato
     fun ottieniPosizione() {
@@ -133,7 +158,7 @@ fun CreaLegaScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Crea una lega") },
+                title = { Text(if (inModifica) "Modifica lega" else "Crea una lega") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Indietro")
@@ -319,20 +344,33 @@ fun CreaLegaScreen(
             Button(
                 onClick = {
                     salvataggioInCorso = true
-                    viewModel.creaLegaConSquadra(
-                        nomeLega = nome,
-                        descrizione = descrizione,
-                        pubblica = pubblica,
-                        immagine = immagineUri?.toString(),
-                        latitudine = if (pubblica) posizione?.latitudine else null,
-                        longitudine = if (pubblica) posizione?.longitudine else null,
-                        onFatto = { idLega -> onLegaCreata(idLega) }
-                    )
+                    if (idLegaDaModificare != null) {
+                        viewModel.modificaLega(
+                            idLega = idLegaDaModificare,
+                            nomeLega = nome,
+                            descrizione = descrizione,
+                            pubblica = pubblica,
+                            immagine = immagineUri?.toString(),
+                            latitudine = posizione?.latitudine,
+                            longitudine = posizione?.longitudine,
+                            onFatto = { onBack() }
+                        )
+                    } else {
+                        viewModel.creaLegaConSquadra(
+                            nomeLega = nome,
+                            descrizione = descrizione,
+                            pubblica = pubblica,
+                            immagine = immagineUri?.toString(),
+                            latitudine = if (pubblica) posizione?.latitudine else null,
+                            longitudine = if (pubblica) posizione?.longitudine else null,
+                            onFatto = { idLega -> onLegaCreata(idLega) }
+                        )
+                    }
                 },
                 enabled = nomeValido && !salvataggioInCorso,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Conferma")
+                Text(if (inModifica) "Salva modifiche" else "Conferma")
             }
 
             Spacer(Modifier.height(32.dp))
