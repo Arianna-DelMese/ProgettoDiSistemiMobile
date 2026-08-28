@@ -211,16 +211,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             val costo = dao.getPrezzoTotale(selezione)
             dao.aggiungiToken(username, -costo)
 
-            resetSelezione()
             // Calcolo subito il punteggio della squadra appena creata
             val punti = dao.calcolaPuntiSquadra(idLega, username)
             dao.aggiornaPunti(idLega, username, punti)
 
             resetSelezione()
             onFatto()
-            onFatto()
         }
     }
+
     fun modificaLega(
         idLega: Int,
         nomeLega: String,
@@ -248,4 +247,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    /** Esce da una lega: cancella prima la squadra, poi l'iscrizione (ordine imposto dalle FK). */
+    fun abbandonaLega(idLega: Int, onFatto: () -> Unit) {
+        val username = currentUser.value
+        if (username.isBlank()) return
+
+        viewModelScope.launch {
+            dao.eliminaSquadra(idLega, username)
+            dao.abbandonaLega(idLega, username)
+            onFatto()
+        }
+    }
 }

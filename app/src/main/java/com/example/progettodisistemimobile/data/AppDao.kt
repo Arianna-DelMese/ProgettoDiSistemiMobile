@@ -127,7 +127,6 @@ interface AppDao {
     )
 
     // --- SQUADRA ---
-    // --- SQUADRA ---
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertComposizione(composizione: ComposizioneSquadra)
 
@@ -148,6 +147,13 @@ interface AppDao {
 
     @Query("SELECT COALESCE(SUM(prezzo), 0) FROM cantante WHERE nome_cantante IN (:nomi)")
     suspend fun getPrezzoTotale(nomi: List<String>): Int
+
+    @Query("DELETE FROM composizione_squadra WHERE id_lega = :idLega AND nome_utente = :username")
+    suspend fun eliminaSquadra(idLega: Int, username: String)
+
+    @Query("DELETE FROM utente_in_lega WHERE id_lega = :idLega AND nome_utente = :username")
+    suspend fun abbandonaLega(idLega: Int, username: String)
+
     /**
      * Punteggio della squadra di un utente in una lega:
      * somma dei punti dei titolari (ruoli 0-4), con il capitano (ruolo 0) raddoppiato.

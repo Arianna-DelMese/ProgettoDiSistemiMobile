@@ -27,8 +27,9 @@ fun LegaHeaderSection(
     nomeLegaFallback: String,
     partecipazione: UtenteInLega?,
     onModificaLega: () -> Unit,
+    onAbbandonaLega: () -> Unit,
     onBack: () -> Unit
-) {
+    ) {
     val context = LocalContext.current
     
     Column {
@@ -88,15 +89,17 @@ fun LegaHeaderSection(
                     Spacer(modifier = Modifier.width(4.dp))
                     Text("Invita", fontSize = 14.sp)
                 }
-                
+
                 if (partecipazione?.stato == true) {
-                    // Tasto Modifica senza bordi, colorato di Terziario
-                    TextButton(
-                        onClick = onModificaLega, 
-                        contentPadding = PaddingValues(horizontal = 4.dp),
-                        colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.tertiary)
-                    ) {
+                    TextButton(onClick = onModificaLega, contentPadding = PaddingValues(horizontal = 4.dp)) {
                         Text("Modifica", fontSize = 14.sp)
+                    }
+                } else if (partecipazione != null) {
+                    TextButton(
+                        onClick = onAbbandonaLega,
+                        contentPadding = PaddingValues(horizontal = 4.dp)
+                    ) {
+                        Text("Abbandona", fontSize = 14.sp, color = MaterialTheme.colorScheme.error)
                     }
                 }
             }
