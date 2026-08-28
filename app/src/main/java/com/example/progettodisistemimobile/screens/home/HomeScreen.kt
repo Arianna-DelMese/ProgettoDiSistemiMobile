@@ -20,7 +20,7 @@ fun HomeScreen(viewModel: MainViewModel = viewModel()) {
     // 0 = Sanremo, 1 = Fantasanremo
     var selectedTab by remember { mutableIntStateOf(1) }
 
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         // --- TOP NAVIGATION BAR ---
         Row(
             modifier = Modifier
@@ -34,20 +34,20 @@ fun HomeScreen(viewModel: MainViewModel = viewModel()) {
                 fontSize = 22.sp,
                 fontWeight = if (selectedTab == 0) FontWeight.Bold else FontWeight.Normal,
                 textDecoration = TextDecoration.Underline,
-                color = if (selectedTab == 0) MaterialTheme.colorScheme.primary else Color.Gray,
+                color = if (selectedTab == 0) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
                 modifier = Modifier
                     .padding(horizontal = 24.dp)
                     .clickable { selectedTab = 0 }
             )
 
-            Box(modifier = Modifier.width(1.dp).height(24.dp).background(Color.LightGray))
+            Box(modifier = Modifier.width(1.dp).height(24.dp).background(MaterialTheme.colorScheme.outlineVariant))
 
             Text(
                 text = "Fantasanremo",
                 fontSize = 22.sp,
                 fontWeight = if (selectedTab == 1) FontWeight.Bold else FontWeight.Normal,
                 textDecoration = TextDecoration.Underline,
-                color = if (selectedTab == 1) MaterialTheme.colorScheme.primary else Color.Gray,
+                color = if (selectedTab == 1) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
                 modifier = Modifier
                     .padding(horizontal = 24.dp)
                     .clickable { selectedTab = 1 }
@@ -57,7 +57,7 @@ fun HomeScreen(viewModel: MainViewModel = viewModel()) {
         HorizontalDivider(
             modifier = Modifier.padding(horizontal = 16.dp),
             thickness = 1.dp,
-            color = Color.LightGray.copy(alpha = 0.5f)
+            color = MaterialTheme.colorScheme.outlineVariant
         )
 
         // --- CONTENUTO DELLE PAGINE ---
