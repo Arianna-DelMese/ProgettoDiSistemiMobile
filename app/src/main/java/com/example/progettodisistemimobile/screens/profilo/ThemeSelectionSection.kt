@@ -1,5 +1,6 @@
 package com.example.progettodisistemimobile.screens.profilo
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -23,7 +24,11 @@ fun ThemeSelectionSection(
         Text(text = "Scegli tema: ", fontSize = 16.sp, fontWeight = FontWeight.Medium)
         Spacer(modifier = Modifier.width(16.dp))
         Box {
-            OutlinedCard(onClick = { expanded = true }, modifier = Modifier.width(150.dp)) {
+            OutlinedCard(
+                onClick = { expanded = true }, 
+                modifier = Modifier.width(150.dp),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.tertiary)
+            ) {
                 Row(
                     modifier = Modifier.padding(8.dp).fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,

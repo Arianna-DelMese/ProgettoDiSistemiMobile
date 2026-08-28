@@ -63,12 +63,12 @@ fun UserInfoSection(utente: Utente?, sessionUsername: String) {
         }
 
         Row(modifier = Modifier.padding(bottom = 32.dp)) {
-            Text(text = "I miei token: ", fontSize = 18.sp, color = Color.Gray)
+            Text(text = "I miei token: ", fontSize = 18.sp)
             Text(
                 text = "${utente?.token ?: 0}",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.ExtraBold,
-                color = MaterialTheme.colorScheme.primary
+                color = MaterialTheme.colorScheme.secondary
             )
         }
     }

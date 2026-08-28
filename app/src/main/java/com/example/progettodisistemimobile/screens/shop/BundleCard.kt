@@ -44,7 +44,7 @@ fun BundleCard(
                         Icon(
                             imageVector = Icons.Default.Token,
                             contentDescription = null,
-                            tint = Color(0xFFFFD700),
+                            tint = MaterialTheme.colorScheme.secondary,
                             modifier = Modifier.size(48.dp)
                         )
                         Text(
@@ -73,7 +73,7 @@ fun BundleCard(
         if (isFirstPurchase) {
             Surface(
                 modifier = Modifier.align(Alignment.TopEnd).offset(x = (4).dp, y = (-4).dp),
-                color = MaterialTheme.colorScheme.error,
+                color = MaterialTheme.colorScheme.primary,
                 shape = RoundedCornerShape(8.dp),
                 shadowElevation = 4.dp
             ) {

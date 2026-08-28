@@ -128,13 +128,13 @@ fun ProfiloScreen(
         ) {
             Text(
                 text = "Impostazioni Account",
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.secondary
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.tertiary
             )
             // Logout senza bordi
             TextButton(
                 onClick = { authViewModel.logout() },
-                colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error),
+                colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.primary),
                 shape = RoundedCornerShape(8.dp),
                 contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
                 modifier = Modifier.height(32.dp)
