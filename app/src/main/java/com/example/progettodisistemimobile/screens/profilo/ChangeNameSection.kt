@@ -42,7 +42,8 @@ fun ChangeNameSection(
         } else if (isNameAvailable && newNameInput.isNotEmpty() && newNameInput != currentSessionUsername) {
             Button(
                 onClick = onConfirm,
-                modifier = Modifier.align(Alignment.End).padding(top = 8.dp)
+                modifier = Modifier.align(Alignment.End).padding(top = 8.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary)
             ) {
                 Text("Conferma")
             }
