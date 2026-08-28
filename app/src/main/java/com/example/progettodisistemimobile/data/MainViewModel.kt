@@ -176,6 +176,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
             val costo = dao.getPrezzoTotale(selezione)
             dao.aggiungiToken(username, -costo)
+
+            // 5. Calcolo il punteggio iniziale della squadra
+            val punti = dao.calcolaPuntiSquadra(idLega, username)
+            dao.aggiornaPunti(idLega, username, punti)
+
             resetSelezione()
             onFatto(idLega)
         }
@@ -207,6 +212,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             dao.aggiungiToken(username, -costo)
 
             resetSelezione()
+            // Calcolo subito il punteggio della squadra appena creata
+            val punti = dao.calcolaPuntiSquadra(idLega, username)
+            dao.aggiornaPunti(idLega, username, punti)
+
+            resetSelezione()
+            onFatto()
             onFatto()
         }
     }

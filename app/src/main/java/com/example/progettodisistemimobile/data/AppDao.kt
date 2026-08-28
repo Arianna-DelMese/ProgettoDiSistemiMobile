@@ -127,6 +127,25 @@ interface AppDao {
 
     @Query("SELECT COALESCE(SUM(prezzo), 0) FROM cantante WHERE nome_cantante IN (:nomi)")
     suspend fun getPrezzoTotale(nomi: List<String>): Int
+    /**
+     * Punteggio della squadra di un utente in una lega:
+     * somma dei punti dei titolari (ruoli 0-4), con il capitano (ruolo 0) raddoppiato.
+     * Le riserve (ruoli 5-6) non contano.
+     */
+    @Query("""
+        SELECT COALESCE(SUM(
+            CASE WHEN cs.ruolo = 0 THEN c.punti * 2 ELSE c.punti END
+        ), 0)
+        FROM composizione_squadra cs
+        INNER JOIN cantante c ON cs.nome_cantante = c.nome_cantante
+        WHERE cs.id_lega = :idLega 
+          AND cs.nome_utente = :username
+          AND cs.ruolo <= 4
+    """)
+    suspend fun calcolaPuntiSquadra(idLega: Int, username: String): Int
+
+    @Query("UPDATE utente_in_lega SET punti = :punti WHERE id_lega = :idLega AND nome_utente = :username")
+    suspend fun aggiornaPunti(idLega: Int, username: String, punti: Int)
 
     // --- BUNDLE E OFFERTE ---
     @Insert(onConflict = OnConflictStrategy.REPLACE)
