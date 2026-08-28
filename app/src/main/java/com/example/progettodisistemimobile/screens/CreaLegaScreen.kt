@@ -81,7 +81,8 @@ fun CreaLegaScreen(
             pubblica = lega.stato
             immagineUri = lega.immagine?.let { Uri.parse(it) }
             if (lega.latitudine != null && lega.longitudine != null) {
-                posizione = PosizioneTrovata(lega.latitudine, lega.longitudine, null)
+                val citta = cercaCitta(context, lega.latitudine, lega.longitudine)
+                posizione = PosizioneTrovata(lega.latitudine, lega.longitudine, citta)
             }
             campiPrecaricati = true
         }

@@ -8,6 +8,8 @@ import com.google.android.gms.location.Priority
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withTimeoutOrNull
 import java.util.Locale
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 /** Coordinate + nome della città, se siamo riusciti a ricavarlo. */
 data class PosizioneTrovata(
@@ -33,17 +35,28 @@ suspend fun leggiPosizione(context: Context): PosizioneTrovata? {
                 ?: client.getCurrentLocation(Priority.PRIORITY_BALANCED_POWER_ACCURACY, null).await()
         } ?: return null
 
-        val citta = try {
-            Geocoder(context, Locale.getDefault())
-                .getFromLocation(posizione.latitude, posizione.longitude, 1)
-                ?.firstOrNull()
-                ?.locality
-        } catch (e: Exception) {
-            null // il geocoder richiede rete e può fallire
-        }
+        val citta = cercaCitta(context, posizione.latitude, posizione.longitude)
 
         PosizioneTrovata(posizione.latitude, posizione.longitude, citta)
     } catch (e: Exception) {
         null
     }
 }
+
+/** Ricava il nome della città da una coppia di coordinate. Null se non ci riesce. */
+suspend fun cercaCitta(context: Context, lat: Double, lon: Double): String? =
+    withContext(Dispatchers.IO) {
+            try {
+                val indirizzo = Geocoder(context, Locale.getDefault())
+                    .getFromLocation(lat, lon, 1)
+                    ?.firstOrNull()
+
+                // Il campo "città" non è sempre valorizzato: provo le alternative in ordine
+                indirizzo?.locality              // città (Milano)
+                    ?: indirizzo?.subAdminArea   // provincia
+                    ?: indirizzo?.adminArea      // regione o stato (Shanghai risponde qui)
+                    ?: indirizzo?.countryName    // nazione, ultima spiaggia
+            } catch (e: Exception) {
+                null // richiede rete, può fallire
+            }
+        }
