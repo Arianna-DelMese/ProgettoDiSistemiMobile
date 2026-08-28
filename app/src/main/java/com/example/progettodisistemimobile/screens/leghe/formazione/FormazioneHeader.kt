@@ -38,7 +38,7 @@ fun FormazioneHeader(
                 Text(
                     text = nomeLega,
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.secondary,
+                    color = MaterialTheme.colorScheme.outline,
                     textAlign = TextAlign.Center
                 )
             }

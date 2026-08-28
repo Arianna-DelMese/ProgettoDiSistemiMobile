@@ -83,7 +83,8 @@ fun HorizontalRankingRow(squadra: List<Cantante>) {
                         text = "CAPITANO",
                         fontSize = 10.sp,
                         fontWeight = FontWeight.Light,
-                        letterSpacing = 1.sp
+                        letterSpacing = 1.sp,
+                        color = MaterialTheme.colorScheme.secondary
                     )
                 }
             }

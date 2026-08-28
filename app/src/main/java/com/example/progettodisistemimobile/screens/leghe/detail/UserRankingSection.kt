@@ -21,6 +21,7 @@ fun UserRankingSection(classifica: List<UserRankingItem>) {
             text = "Classifica Lega",
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.tertiary,
             modifier = Modifier.padding(bottom = 8.dp)
         )
 

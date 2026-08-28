@@ -90,8 +90,12 @@ fun LegaHeaderSection(
                 }
                 
                 if (partecipazione?.stato == true) {
-                    // Tasto Modifica senza bordi
-                    TextButton(onClick = onModificaLega, contentPadding = PaddingValues(horizontal = 4.dp)) {
+                    // Tasto Modifica senza bordi, colorato di Terziario
+                    TextButton(
+                        onClick = onModificaLega, 
+                        contentPadding = PaddingValues(horizontal = 4.dp),
+                        colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.tertiary)
+                    ) {
                         Text("Modifica", fontSize = 14.sp)
                     }
                 }
