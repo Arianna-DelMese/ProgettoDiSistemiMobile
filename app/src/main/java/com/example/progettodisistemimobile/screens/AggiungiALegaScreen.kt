@@ -18,6 +18,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.progettodisistemimobile.data.Lega
 import com.example.progettodisistemimobile.data.MainViewModel
+import androidx.compose.foundation.background
+import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.Map
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.style.TextAlign
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -29,6 +35,9 @@ fun AggiungiALegaScreen(
     var ricerca by rememberSaveable { mutableStateOf("") }
     var legaSelezionata by remember { mutableStateOf<Lega?>(null) }
     var salvataggioInCorso by rememberSaveable { mutableStateOf(false) }
+
+    // 0 = lista, 1 = mappa
+    var vista by rememberSaveable { mutableIntStateOf(0) }
 
     val leghe by viewModel.cercaLeghe(ricerca).collectAsState(initial = emptyList())
 
@@ -50,21 +59,83 @@ fun AggiungiALegaScreen(
                 .padding(innerPadding)
                 .padding(horizontal = 16.dp)
         ) {
+
             Spacer(Modifier.height(8.dp))
 
-            OutlinedTextField(
-                value = ricerca,
-                onValueChange = { ricerca = it },
-                label = { Text("Cerca dal nome della lega") },
-                singleLine = true,
-                enabled = !salvataggioInCorso,
-                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-                modifier = Modifier.fillMaxWidth()
-            )
+            // La ricerca per nome serve solo nella vista a lista
+            if (vista == 0) {
+                OutlinedTextField(
+                    value = ricerca,
+                    onValueChange = { ricerca = it },
+                    label = { Text("Cerca dal nome della lega") },
+                    singleLine = true,
+                    enabled = !salvataggioInCorso,
+                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                    modifier = Modifier.fillMaxWidth()
+                )
 
-            Spacer(Modifier.height(12.dp))
+                Spacer(Modifier.height(12.dp))
+            }
 
-            if (leghe.isEmpty()) {
+
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Dal nome",
+                    fontSize = 17.sp,
+                    textAlign = TextAlign.Center,
+                    fontWeight = if (vista == 0) FontWeight.Bold else FontWeight.Normal,
+                    textDecoration = TextDecoration.Underline,
+                    color = if (vista == 0) MaterialTheme.colorScheme.primary else Color.Gray,
+                    modifier = Modifier
+                        .weight(1f)
+                        .clickable { vista = 0 }
+                        .padding(horizontal = 8.dp)
+                )
+
+                Box(modifier = Modifier.width(1.dp).height(24.dp).background(Color.LightGray))
+
+                Text(
+                    text = "Dalla posizione",
+                    fontSize = 17.sp,
+                    textAlign = TextAlign.Center,
+                    fontWeight = if (vista == 1) FontWeight.Bold else FontWeight.Normal,
+                    textDecoration = TextDecoration.Underline,
+                    color = if (vista == 1) MaterialTheme.colorScheme.primary else Color.Gray,
+                    modifier = Modifier
+                        .weight(1f)
+                        .clickable {
+                            vista = 1
+                            ricerca = ""   // sulla mappa mostro tutte le leghe
+                        }
+                        .padding(horizontal = 8.dp)
+                )
+            }
+
+            if (vista == 1) {
+                MappaLeghe(
+                    leghe = leghe,
+                    onLegaSelezionata = { legaSelezionata = it },
+                    modifier = Modifier.fillMaxWidth().weight(1f)
+                )
+
+                Text(
+                    text = "© OpenStreetMap contributors",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+
+                legaSelezionata?.let {
+                    Text(
+                        text = "Selezionata: ${it.nome_lega}",
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(vertical = 4.dp)
+                    )
+                }
+            } else if (leghe.isEmpty()) {
                 Box(
                     modifier = Modifier.fillMaxWidth().weight(1f),
                     contentAlignment = Alignment.Center

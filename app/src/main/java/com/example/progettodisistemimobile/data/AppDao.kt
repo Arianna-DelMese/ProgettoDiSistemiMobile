@@ -73,7 +73,7 @@ interface AppDao {
     fun getUtenteInLega(idLega: Int, username: String): Flow<UtenteInLega?>
 
     @Query("""
-        SELECT * FROM lega 
+        SELECT lega.* FROM lega 
         INNER JOIN utente_in_lega ON lega.id_lega = utente_in_lega.id_lega 
         WHERE utente_in_lega.nome_utente = :username
     """)

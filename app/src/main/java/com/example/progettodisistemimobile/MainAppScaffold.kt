@@ -87,6 +87,18 @@ fun MainAppScaffold() {
                 )
             }
 
+            composable("aggiungi_lega") {
+                AggiungiALegaScreen(
+                    viewModel = mainViewModel,
+                    onBack = { navController.popBackStack() },
+                    onIscrizioneCompletata = {
+                        navController.navigate(Screen.LeMieLeghe.route) {
+                            popUpTo(Screen.NuovaSquadra.route) { inclusive = true }
+                        }
+                    }
+                )
+            }
+
             composable(
                 route = Screen.ModificaFormazione.route,
                 arguments = listOf(
@@ -116,7 +128,8 @@ fun BottomNavigationBar(navController: NavHostController) {
                         currentRoute?.startsWith("dettaglio_lega") == true ||
                         currentRoute?.startsWith("modifica_formazione") == true
                 Screen.NuovaSquadra -> currentRoute == Screen.NuovaSquadra.route ||
-                        currentRoute == "crea_lega"
+                        currentRoute == "crea_lega" ||
+                        currentRoute == "aggiungi_lega"
                 else -> currentRoute == screen.route
             }
 
