@@ -12,34 +12,51 @@ import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
     primary = VibrantPink,
-    secondary = SanremoGold,
-    tertiary = LavenderDark,
-    tertiaryContainer = LavenderContainer,
-    background = DarkBlueBG,
-    surface = DarkBlueBG,
     onPrimary = DarkBlueBG,
+    secondary = SanremoGold,
     onSecondary = DarkBlueBG,
+    tertiary = LavenderDark,
     onTertiary = DarkBlueBG,
+
+    // Sfondo Sanremo e Barra di navigazione
+    tertiaryContainer = LavenderContainer,
     onTertiaryContainer = LightBlueBG,
+    surfaceContainer = LavenderContainer,
+
+    // Elementi selezionati (pillola nav bar)
+    secondaryContainer = VibrantPink,
+    onSecondaryContainer = DarkBlueBG,
+
+    background = DarkBlueBG,
     onBackground = LightBlueBG,
+    surface = DarkBlueBG,
     onSurface = LightBlueBG,
+    onSurfaceVariant = LavenderDark,
     outline = LavenderDark,
     outlineVariant = LavenderContainer
 )
 
 private val LightColorScheme = lightColorScheme(
     primary = CrimsonRed,
-    secondary = SanremoGold,
-    tertiary = AzureBlue,
-    tertiaryContainer = AzureContainer,
-    background = LightBlueBG,
-    surface = LightBlueBG,
     onPrimary = LightBlueBG,
+    secondary = SanremoGold,
     onSecondary = DarkBlueBG,
+    tertiary = AzureBlue,
     onTertiary = LightBlueBG,
+
+    // Sfondo Sanremo
+    tertiaryContainer = AzureContainer,
     onTertiaryContainer = DarkBlueBG,
+    surfaceContainer = AzureContainer,
+
+    secondaryContainer = CrimsonRed,
+    onSecondaryContainer = LightBlueBG,
+
+    background = LightBlueBG,
     onBackground = DarkBlueBG,
+    surface = LightBlueBG,
     onSurface = DarkBlueBG,
+    onSurfaceVariant = AzureBlue,
     outline = AzureBlue,
     outlineVariant = AzureContainer
 )
