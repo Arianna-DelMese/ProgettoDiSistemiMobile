@@ -173,8 +173,10 @@ private fun CantanteSelezionabileRow(
     Card(
         modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
         colors = CardDefaults.cardColors(
-            containerColor = if (isSelezionato) MaterialTheme.colorScheme.secondaryContainer
-            else MaterialTheme.colorScheme.surface
+            containerColor = if (isSelezionato)
+                MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+            else
+                MaterialTheme.colorScheme.surface
         )
     ) {
         Row(

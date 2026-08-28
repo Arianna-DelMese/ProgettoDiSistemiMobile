@@ -199,8 +199,10 @@ private fun LegaSelezionabileRow(
             .padding(vertical = 4.dp)
             .clickable { onClick() },
         colors = CardDefaults.cardColors(
-            containerColor = if (isSelezionata) MaterialTheme.colorScheme.secondaryContainer
-            else MaterialTheme.colorScheme.surface
+            containerColor = if (isSelezionata)
+                MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+            else
+                MaterialTheme.colorScheme.surface
         )
     ) {
         Row(
@@ -209,7 +211,12 @@ private fun LegaSelezionabileRow(
         ) {
             RadioButton(selected = isSelezionata, onClick = { onClick() })
 
-            Column(modifier = Modifier.weight(1f).padding(start = 8.dp)) {
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(start = 16.dp)
+                    .align(Alignment.CenterVertically)
+            ) {
                 Text(lega.nome_lega, fontWeight = FontWeight.Bold)
                 lega.descrizione?.let {
                     Text(

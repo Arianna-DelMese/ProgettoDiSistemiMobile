@@ -13,6 +13,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.progettodisistemimobile.Screen
 import com.example.progettodisistemimobile.data.MainViewModel
+import androidx.compose.ui.graphics.Color
 
 @Composable
 fun LegaDetailScreen(
@@ -34,18 +35,26 @@ fun LegaDetailScreen(
     if (mostraConferma) {
         AlertDialog(
             onDismissRequest = { mostraConferma = false },
+            containerColor = MaterialTheme.colorScheme.surface,
             title = { Text("Abbandonare la lega?") },
-            text = { Text("La tua squadra verrà eliminata e i token spesi non saranno restituiti.") },
+            text = {
+                Text(
+                    "La tua squadra verrà eliminata e i token spesi non saranno restituiti.",
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            },
             confirmButton = {
                 TextButton(onClick = {
                     mostraConferma = false
                     viewModel.abbandonaLega(idLega) { onBack() }
                 }) {
-                    Text("Abbandona", color = MaterialTheme.colorScheme.error)
+                    Text("Abbandona", color = MaterialTheme.colorScheme.primary)
                 }
             },
             dismissButton = {
-                TextButton(onClick = { mostraConferma = false }) { Text("Annulla") }
+                TextButton(onClick = { mostraConferma = false }) {
+                    Text("Annulla", color = Color.Gray)
+                }
             }
         )
     }
