@@ -25,9 +25,11 @@ fun SanremoView(viewModel: MainViewModel) {
     val cantanti by viewModel.tuttiICantantiPerPunti.collectAsState(initial = emptyList())
 
     val isEvening4 = selectedEvening == 4
-    val externalBgColor = if (isEvening4) Color(0xFF121212) else MaterialTheme.colorScheme.secondaryContainer
-    val accentColor = if (isEvening4) Color(0xFFFFD700) else Color.Gray
-    val cardContentColor = if (isEvening4) Color.White else Color.Black
+    // Utilizziamo il colore Terziario per Sanremo
+    val accentColor = if (isEvening4) Color(0xFFFFD700) else MaterialTheme.colorScheme.tertiary
+    // Sfondo esterno meno saturato (tertiaryContainer)
+    val externalBgColor = MaterialTheme.colorScheme.tertiaryContainer
+    val cardContentColor = MaterialTheme.colorScheme.onSurface
 
     val cantantiSerata = remember(cantanti, selectedEvening) {
         cantanti.mapNotNull { cantante ->
@@ -59,8 +61,8 @@ fun SanremoView(viewModel: MainViewModel) {
                 (1..5).forEach { evening ->
                     val isSelected = selectedEvening == evening
                     val isSpecial4 = evening == 4
-                    val selectedColor = if (isSpecial4) Color(0xFFFFD700) else Color.White
-                    val baseBorderColor = if (isEvening4) Color.DarkGray else Color.Gray
+                    val selectedBg = if (isSelected) (if (isSpecial4) Color(0xFFFFD700) else MaterialTheme.colorScheme.tertiary) else Color.Transparent
+                    val contentColor = if (isSelected) MaterialTheme.colorScheme.onTertiary else MaterialTheme.colorScheme.onBackground
 
                     Box(
                         modifier = Modifier
@@ -70,12 +72,12 @@ fun SanremoView(viewModel: MainViewModel) {
                                 if (isSelected) {
                                     Modifier
                                         .offset(y = 1.dp)
-                                        .background(color = selectedColor, shape = RectangleShape)
+                                        .background(color = selectedBg, shape = RectangleShape)
                                         .border(width = 1.dp, color = accentColor, shape = RectangleShape)
                                 } else {
                                     Modifier
                                         .background(color = Color.Transparent, shape = RectangleShape)
-                                        .border(width = 0.5.dp, color = baseBorderColor, shape = RectangleShape)
+                                        .border(width = 0.5.dp, color = MaterialTheme.colorScheme.outline, shape = RectangleShape)
                                 }
                             )
                             .clickable { selectedEvening = evening },
@@ -83,7 +85,7 @@ fun SanremoView(viewModel: MainViewModel) {
                     ) {
                         Text(
                             text = evening.toString(),
-                            color = if (isSelected) Color.Black else (if (isEvening4) Color.LightGray else Color.DarkGray),
+                            color = contentColor,
                             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
                             fontSize = 16.sp
                         )
@@ -102,7 +104,7 @@ fun SanremoView(viewModel: MainViewModel) {
                         shape = RoundedCornerShape(bottomStart = 12.dp, bottomEnd = 12.dp, topEnd = 12.dp)
                     ),
                 shape = RoundedCornerShape(bottomStart = 12.dp, bottomEnd = 12.dp, topEnd = 12.dp),
-                colors = CardDefaults.cardColors(containerColor = if (isEvening4) Color(0xFF1E1E1E) else Color.White),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                 elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
@@ -110,14 +112,14 @@ fun SanremoView(viewModel: MainViewModel) {
                         text = if (isEvening4) "Serata Cover & Duetti ⭐" else "Classifica Serata $selectedEvening",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
-                        color = if (isEvening4) Color(0xFFFFD700) else MaterialTheme.colorScheme.primary,
+                        color = accentColor,
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
 
                     LazyColumn(modifier = Modifier.fillMaxSize()) {
                         items(cantantiSerata) { (cantante, posizioneReale) ->
                             CantanteRow(
-                                position = posizioneReale, // Prende la posizione reale dal DB
+                                position = posizioneReale,
                                 cantante = cantante,
                                 valoreDestra = "",
                                 isSanremo = true,
@@ -126,7 +128,7 @@ fun SanremoView(viewModel: MainViewModel) {
                             )
                             HorizontalDivider(
                                 modifier = Modifier.padding(vertical = 4.dp), 
-                                color = (if (isEvening4) Color.Gray else Color.LightGray).copy(alpha = 0.2f)
+                                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
                             )
                         }
                     }
