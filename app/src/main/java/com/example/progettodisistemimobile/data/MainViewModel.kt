@@ -221,5 +221,31 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             onFatto()
         }
     }
+    fun modificaLega(
+        idLega: Int,
+        nomeLega: String,
+        descrizione: String,
+        pubblica: Boolean,
+        immagine: String?,
+        latitudine: Double?,
+        longitudine: Double?,
+        onFatto: () -> Unit
+    ) {
+        if (nomeLega.trim().length < 3) return
+
+        viewModelScope.launch {
+            dao.aggiornaLega(
+                idLega = idLega,
+                nome = nomeLega.trim(),
+                descrizione = descrizione.trim(),
+                pubblica = pubblica,
+                immagine = immagine,
+                // Se torna privata, le coordinate non servono più
+                latitudine = if (pubblica) latitudine else null,
+                longitudine = if (pubblica) longitudine else null
+            )
+            onFatto()
+        }
+    }
 
 }

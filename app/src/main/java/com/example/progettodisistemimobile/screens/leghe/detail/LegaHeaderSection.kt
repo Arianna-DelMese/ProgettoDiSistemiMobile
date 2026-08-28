@@ -26,6 +26,7 @@ fun LegaHeaderSection(
     lega: Lega?,
     nomeLegaFallback: String,
     partecipazione: UtenteInLega?,
+    onModificaLega: () -> Unit,
     onBack: () -> Unit
 ) {
     val context = LocalContext.current
@@ -90,7 +91,7 @@ fun LegaHeaderSection(
                 
                 if (partecipazione?.stato == true) {
                     // Tasto Modifica senza bordi
-                    TextButton(onClick = { /* Modifica */ }, contentPadding = PaddingValues(horizontal = 4.dp)) {
+                    TextButton(onClick = onModificaLega, contentPadding = PaddingValues(horizontal = 4.dp)) {
                         Text("Modifica", fontSize = 14.sp)
                     }
                 }

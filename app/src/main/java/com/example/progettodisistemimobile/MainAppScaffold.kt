@@ -87,6 +87,19 @@ fun MainAppScaffold() {
                 )
             }
 
+            composable(
+                route = "modifica_lega/{idLega}",
+                arguments = listOf(navArgument("idLega") { type = NavType.IntType })
+            ) { backStackEntry ->
+                val idLega = backStackEntry.arguments?.getInt("idLega") ?: 0
+                CreaLegaScreen(
+                    viewModel = mainViewModel,
+                    onBack = { navController.popBackStack() },
+                    onLegaCreata = { },              // non usata in modifica
+                    idLegaDaModificare = idLega
+                )
+            }
+
             composable("aggiungi_lega") {
                 AggiungiALegaScreen(
                     viewModel = mainViewModel,
