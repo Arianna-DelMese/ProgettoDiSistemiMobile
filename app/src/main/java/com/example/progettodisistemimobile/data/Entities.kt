@@ -12,9 +12,7 @@ data class Utente(
     val email: String,
     val password: String,
     val foto_profilo: String?, // URI dell'immagine
-    val token: Int = 0,
-    val dati_biomedici: String?,
-    val dati_pagamento: String?
+    val token: Int = 0
 )
 
 @Entity(tableName = "lega")
@@ -120,8 +118,7 @@ data class Bundle(
 )
 data class OffertaUtente(
     val nome_utente: String,
-    val id_bundle: Int,
-    val stato: Boolean
+    val id_bundle: Int
 )
 
 // Classe di supporto per la classifica utenti con nome del capitano

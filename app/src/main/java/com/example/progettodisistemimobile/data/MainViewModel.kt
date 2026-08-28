@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlin.math.ceil
+import androidx.core.net.toUri
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val dao = AppDatabase.getDatabase(application).appDao()
@@ -55,7 +56,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             }
             nuovaFoto?.let { photoUri ->
                 try {
-                    val uri = Uri.parse(photoUri)
+                    val uri = photoUri.toUri()
                     if (photoUri.startsWith("content://") && !photoUri.contains(getApplication<Application>().packageName)) {
                         getApplication<Application>().contentResolver.takePersistableUriPermission(
                             uri,
@@ -104,7 +105,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
             dao.aggiungiToken(username, tokenTotali)
             if (giaAcquistato == null) {
-                dao.registraAcquistoBundle(OffertaUtente(username, bundle.id_bundle, true))
+                dao.registraAcquistoBundle(OffertaUtente(username, bundle.id_bundle))
             }
         }
     }
