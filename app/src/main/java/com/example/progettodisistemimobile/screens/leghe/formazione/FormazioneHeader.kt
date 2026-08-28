@@ -16,16 +16,20 @@ fun FormazioneHeader(
     nomeLega: String,
     onBack: () -> Unit
 ) {
-    Surface(shadowElevation = 2.dp) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp) // Padding per non far arrivare la riga ai lati
+    ) {
         Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 4.dp),
+            modifier = Modifier.fillMaxWidth(),
             contentAlignment = Alignment.Center
         ) {
             IconButton(
                 onClick = onBack,
-                modifier = Modifier.align(Alignment.CenterStart)
+                modifier = Modifier
+                    .align(Alignment.CenterStart)
+                    .padding(start = 4.dp) // Freccia spostata leggermente a destra
             ) {
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, "Indietro")
             }
@@ -43,5 +47,10 @@ fun FormazioneHeader(
                 )
             }
         }
+        Spacer(modifier = Modifier.height(8.dp))
+        HorizontalDivider(
+            thickness = 1.dp,
+            color = MaterialTheme.colorScheme.outlineVariant
+        )
     }
 }
