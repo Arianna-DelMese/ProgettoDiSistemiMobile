@@ -34,8 +34,8 @@ fun CantanteRow(
         cantante.canzone
     }
 
-    val mainText = if (isSanremo) songTitle ?: "" else singerName
-    val subText = if (isSanremo) singerName else songTitle ?: ""
+    val mainText = if (isSanremo) songTitle else singerName
+    val subText = if (isSanremo) singerName else songTitle
 
     Row(
         modifier = Modifier
@@ -69,7 +69,7 @@ fun CantanteRow(
             Text(
                 text = subText,
                 style = MaterialTheme.typography.bodySmall,
-                color = if (overrideTextColor != null) overrideTextColor.copy(alpha = 0.7f) else Color.Gray,
+                color = overrideTextColor?.copy(alpha = 0.7f) ?: Color.Gray,
                 fontSize = 13.sp
             )
         }

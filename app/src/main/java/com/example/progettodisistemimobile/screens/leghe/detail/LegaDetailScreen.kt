@@ -6,14 +6,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.progettodisistemimobile.Screen
 import com.example.progettodisistemimobile.data.MainViewModel
-import androidx.compose.ui.graphics.Color
 
 @Composable
 fun LegaDetailScreen(
@@ -21,7 +21,7 @@ fun LegaDetailScreen(
     nomeLega: String,
     onBack: () -> Unit,
     navController: NavController,
-    viewModel: MainViewModel = viewModel()
+    viewModel: MainViewModel
 ) {
     val currentUsername by viewModel.currentUser.collectAsState()
     val lega by viewModel.getLega(idLega).collectAsState(initial = null)
@@ -29,40 +29,38 @@ fun LegaDetailScreen(
     val squadra by viewModel.getSquadra(idLega, currentUsername).collectAsState(initial = emptyList())
     val classifica by viewModel.getClassificaLegaConCapitano(idLega).collectAsState(initial = emptyList())
 
-    // Conferma prima di abbandonare: l'operazione è irreversibile
-    var mostraConferma by remember { mutableStateOf(false) }
+    // Stato persistente per il dialogo di conferma
+    var mostraConfermaAbbandono by rememberSaveable { mutableStateOf(false) }
 
-    if (mostraConferma) {
+    // Dialogo di conferma per l'abbandono della lega
+    if (mostraConfermaAbbandono) {
         AlertDialog(
-            onDismissRequest = { mostraConferma = false },
-            containerColor = MaterialTheme.colorScheme.surface,
+            onDismissRequest = { mostraConfermaAbbandono = false },
             title = { Text("Abbandonare la lega?") },
             text = {
                 Text(
-                    "La tua squadra verrà eliminata e i token spesi non saranno restituiti.",
-                    color = MaterialTheme.colorScheme.onSurface
+                    "Sei sicuro? La tua squadra verrà eliminata e non potrai recuperare i token spesi per crearla.",
+                    style = MaterialTheme.typography.bodyMedium
                 )
             },
             confirmButton = {
                 TextButton(onClick = {
-                    mostraConferma = false
+                    mostraConfermaAbbandono = false
                     viewModel.abbandonaLega(idLega) { onBack() }
                 }) {
-                    Text("Abbandona", color = MaterialTheme.colorScheme.primary)
+                    Text("Conferma", color = MaterialTheme.colorScheme.error)
                 }
             },
             dismissButton = {
-                TextButton(onClick = { mostraConferma = false }) {
-                    Text("Annulla", color = Color.Gray)
+                TextButton(onClick = { mostraConfermaAbbandono = false }) {
+                    Text("Annulla", color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
         )
     }
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+        modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.Start
     ) {
@@ -73,20 +71,24 @@ fun LegaDetailScreen(
             partecipazione = partecipazione,
             onBack = onBack,
             onModificaLega = { navController.navigate("modifica_lega/$idLega") },
-            onAbbandonaLega = { mostraConferma = true }
+            onAbbandonaLega = { mostraConfermaAbbandono = true }
         )
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp, vertical = 12.dp)
+        ) {
+            // --- TOP PERFORMERS E BOTTONE MODIFICA ---
+            TopPerformersSection(
+                squadra = squadra,
+                onModificaClick = { navController.navigate(Screen.ModificaFormazione.createRoute(idLega)) }
+            )
 
-        // --- TOP PERFORMERS E BOTTONE MODIFICA ---
-        TopPerformersSection(
-            squadra = squadra,
-            onModificaClick = { navController.navigate(Screen.ModificaFormazione.createRoute(idLega)) }
-        )
+            Spacer(modifier = Modifier.height(24.dp))
 
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // --- CLASSIFICA UTENTI ---
-        UserRankingSection(classifica = classifica)
+            // --- CLASSIFICA UTENTI ---
+            UserRankingSection(classifica = classifica)
+        }
     }
 }

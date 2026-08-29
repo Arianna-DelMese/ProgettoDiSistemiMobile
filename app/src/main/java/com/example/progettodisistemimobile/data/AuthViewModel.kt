@@ -37,7 +37,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
         initialValue = null
     )
 
-    // ---------------- LOGIN ----------------
+    // Login
 
     fun login(email: String, password: String) {
         val emailPulita = email.trim()
@@ -62,7 +62,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    // ---------------- REGISTRAZIONE ----------------
+    // Registrazione
 
     fun registra(
         nomeUtente: String,

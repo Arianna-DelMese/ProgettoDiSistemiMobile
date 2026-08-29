@@ -2,7 +2,6 @@ package com.example.progettodisistemimobile.data
 
 import android.app.Application
 import android.content.Intent
-import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.*
@@ -14,7 +13,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val dao = AppDatabase.getDatabase(application).appDao()
     private val settingsManager = SettingsManager(application)
 
-    // --- SESSIONE UTENTE PERSISTENTE ---
+    // Sessione
     val currentUser: StateFlow<String> = settingsManager.currentUser.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
@@ -27,7 +26,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    // --- STREAM DI DATI ---
+    // Stream di dati
     val tuttiICantantiPerPunti = dao.getCantantiPerPunti()
     val tuttiIBundle = dao.getAllBundles()
     val themeMode = settingsManager.themeMode
@@ -47,7 +46,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
-    // --- OPERAZIONI PROFILO ---
+    // Profilo
     fun aggiornaProfilo(vecchioNome: String, nuovoNome: String, nuovaFoto: String?) {
         viewModelScope.launch {
             if (vecchioNome != nuovoNome) {
@@ -75,7 +74,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch { settingsManager.setThemeMode(mode) }
     }
 
-    // --- LOGICA MODIFICA FORMAZIONE ---
+    // Modifica formazione
     fun scambiaRuoli(idLega: Int, username: String, c1: Cantante, r1: Int, c2: Cantante, r2: Int) {
         viewModelScope.launch {
             dao.updateRuoloCantante(idLega, username, c1.nome_cantante, r2)
@@ -96,7 +95,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    // --- LOGICA SHOP ---
+    // Shop
     fun acquistaBundle(username: String, bundle: Bundle) {
         viewModelScope.launch {
             val giaAcquistato = dao.getOffertaUtente(username, bundle.id_bundle)
@@ -110,7 +109,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    // --- LOGICA SELEZIONE NUOVA SQUADRA ---
+    // Selezione nuova squadra
     private val _cantantiSelezionati = MutableStateFlow<List<String>>(emptyList())
     val cantantiSelezionati: StateFlow<List<String>> = _cantantiSelezionati.asStateFlow()
 
@@ -165,11 +164,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             ).toInt()
 
             dao.joinLega(UtenteInLega(username, idLega, true, 0))
-            
-            // Inserimento capitano (ruolo 0)
+
             dao.insertComposizione(ComposizioneSquadra(username, idLega, nomeCapitano, 0))
 
-            // Inserimento altri (ruoli 1-6)
             selezione.filter { it != nomeCapitano }.forEachIndexed { i, nome ->
                 dao.insertComposizione(ComposizioneSquadra(username, idLega, nome, i + 1))
             }
@@ -247,7 +244,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    /** Esce da una lega: cancella prima la squadra, poi l'iscrizione (ordine imposto dalle FK). */
+    // Esce da una lega: cancella prima la squadra, poi l'iscrizione (ordine imposto dalle FK)
     fun abbandonaLega(idLega: Int, onFatto: () -> Unit) {
         val username = currentUser.value
         if (username.isBlank()) return
@@ -259,7 +256,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    /** Iscrizione rapida da link (Deep Link) */
+    // Iscrizione rapida da Deep Link
     fun iscrizioneRapidaLega(idLega: Int, onCompletato: () -> Unit) {
         val username = currentUser.value
         if (username.isEmpty()) return

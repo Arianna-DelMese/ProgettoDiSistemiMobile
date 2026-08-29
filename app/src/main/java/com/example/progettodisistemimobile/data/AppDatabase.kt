@@ -40,8 +40,6 @@ abstract class AppDatabase : RoomDatabase() {
 
         override fun onDestructiveMigration(db: SupportSQLiteDatabase) {
             super.onDestructiveMigration(db)
-            // Room ha cancellato e ricreato il DB dopo un cambio di versione:
-            // onCreate non viene richiamato, quindi il seed va rifatto qui
             INSTANCE?.let { database ->
                 scope.launch(Dispatchers.IO) {
                     populateDatabase(database.appDao())
@@ -50,7 +48,6 @@ abstract class AppDatabase : RoomDatabase() {
         }
 
         suspend fun populateDatabase(dao: AppDao) {
-            // --- POPOLAMENTO CANTANTI (Classifiche originali preservate) ---
             val cantanti = listOf(
                 Cantante("Marco Mengoni", "Due Vite", 20, 15, "Lisa", "Money", 1, 13, null, 12, 29), // Spostato in Serata 2 (pos 13)
                 Cantante("Sal Da Vinci", "Per Sempre Sì", 18, 9, "Bobby Solo", "Una Lacrima sul Viso", 2, 5, null, 29, 20),
@@ -85,32 +82,31 @@ abstract class AppDatabase : RoomDatabase() {
             )
             cantanti.forEach { dao.insertCantante(it) }
 
-            // --- BUNDLE ---
             val bundles = listOf(
-                Bundle(1, 10, 1), Bundle(2, 25, 2), Bundle(3, 50, 4),
-                Bundle(4, 100, 8), Bundle(5, 200, 15), Bundle(6, 500, 35)
+                Bundle(1, 10, 1),
+                Bundle(2, 25, 2),
+                Bundle(3, 50, 4),
+                Bundle(4, 100, 8),
+                Bundle(5, 200, 15),
+                Bundle(6, 500, 35)
             )
             bundles.forEach { dao.insertBundle(it) }
 
-            // --- UTENTI ---
+            // utenti
             val utenti = listOf(
-                Utente("MarioRossi", "mario@example.com", PasswordUtils.hash("pass"), null, 150),
-                Utente("LuigiVerdi", "luigi@example.com", PasswordUtils.hash("pass"), null, 50),
-                Utente("SofiaBianchi", "sofia@example.com", PasswordUtils.hash("pass"), null, 200),
-                Utente("MarcoNeri", "marco@example.com", PasswordUtils.hash("pass"), null, 100),
-                Utente("ElenaGialli", "elena@example.com", PasswordUtils.hash("pass"), null, 80),
-                Utente("DavideRossi", "davide@example.com", PasswordUtils.hash("pass"), null, 120)
+                Utente("MarioRossi", "mario@example.com", PasswordUtils.hash("pass123"), null, 150),
+                Utente("LuigiVerdi", "luigi@example.com", PasswordUtils.hash("pass123"), null, 50),
+                Utente("SofiaBianchi", "sofia@example.com", PasswordUtils.hash("pass123"), null, 200),
+                Utente("MarcoNeri", "marco@example.com", PasswordUtils.hash("pass123"), null, 100),
+                Utente("ElenaGialli", "elena@example.com", PasswordUtils.hash("pass123"), null, 80),
+                Utente("DavideRossi", "davide@example.com", PasswordUtils.hash("pass123"), null, 120)
             )
             utenti.forEach { dao.insertUtente(it) }
 
-            // --- LEGHE ---
             val idL1 = dao.insertLega(Lega(0, "Lega degli Esperti", null, "Una lega per veri appassionati", true, 41.89, 12.49)).toInt()
             val idL2 = dao.insertLega(Lega(0, "Amici di Sanremo", null, "Solo per divertimento", true, 45.44, 9.14)).toInt()
             val idL3 = dao.insertLega(Lega(0, "Lega Mondiale", null, "Sfida globale", true, null, null)).toInt()
 
-            // --- ISCRIZIONI E SQUADRE (Almeno 3 per lega) ---
-
-            // Lega 1: Mario, Luigi, Sofia
             val l1Users = listOf("MarioRossi", "LuigiVerdi", "SofiaBianchi")
             l1Users.forEach { user ->
                 dao.joinLega(UtenteInLega(user, idL1, user == "MarioRossi", (0..100).random()))
@@ -118,7 +114,6 @@ abstract class AppDatabase : RoomDatabase() {
                 sq.forEachIndexed { i, c -> dao.insertComposizione(ComposizioneSquadra(user, idL1, c.nome_cantante, i)) }
             }
 
-            // Lega 2: Mario, Marco, Elena
             val l2Users = listOf("MarioRossi", "MarcoNeri", "ElenaGialli")
             l2Users.forEach { user ->
                 dao.joinLega(UtenteInLega(user, idL2, user == "MarcoNeri", (0..100).random()))
@@ -126,7 +121,6 @@ abstract class AppDatabase : RoomDatabase() {
                 sq.forEachIndexed { i, c -> dao.insertComposizione(ComposizioneSquadra(user, idL2, c.nome_cantante, i)) }
             }
 
-            // Lega 3: Mario, Davide, Luigi, Sofia
             val l3Users = listOf("MarioRossi", "DavideRossi", "LuigiVerdi", "SofiaBianchi")
             l3Users.forEach { user ->
                 dao.joinLega(UtenteInLega(user, idL3, user == "MarioRossi", (0..100).random()))
