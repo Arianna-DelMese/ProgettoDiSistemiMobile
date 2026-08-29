@@ -11,7 +11,7 @@ data class Utente(
     @PrimaryKey val nome_utente: String,
     val email: String,
     val password: String,
-    val foto_profilo: String?, // URI dell'immagine
+    val foto_profilo: String?,
     val token: Int = 0
 )
 
@@ -21,7 +21,7 @@ data class Lega(
     val nome_lega: String,
     val immagine: String?,
     val descrizione: String,
-    val stato: Boolean, //true se pubblica, false se privata
+    val stato: Boolean, // true se pubblica, false se privata
     val latitudine: Double?,
     val longitudine: Double?
 )
@@ -121,7 +121,6 @@ data class OffertaUtente(
     val id_bundle: Int
 )
 
-// Classe di supporto per la classifica utenti con nome del capitano
 data class UserRankingItem(
     @Embedded val utenteInLega: UtenteInLega,
     @ColumnInfo(name = "nome_capitano") val nomeCapitano: String?

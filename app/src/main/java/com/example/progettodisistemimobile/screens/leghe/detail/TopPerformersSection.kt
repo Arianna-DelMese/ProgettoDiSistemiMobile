@@ -26,7 +26,6 @@ fun TopPerformersSection(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // --- BOTTONE MODIFICA FORMAZIONE ---
         Button(
             onClick = onModificaClick,
             modifier = Modifier.fillMaxWidth(),
@@ -56,7 +55,7 @@ fun HorizontalRankingRow(squadra: List<Cantante>) {
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // --- CAPITANO (Sinistra) ---
+            // Capitano a sinistra
             if (capitano != null) {
                 Column(
                     modifier = Modifier.weight(1.2f),
@@ -89,14 +88,13 @@ fun HorizontalRankingRow(squadra: List<Cantante>) {
                 }
             }
 
-            // Divisore verticale sottile
             VerticalDivider(
                 modifier = Modifier.height(40.dp).padding(horizontal = 8.dp),
                 thickness = 1.dp,
                 color = MaterialTheme.colorScheme.outlineVariant
             )
 
-            // --- TOP 3 PUNTI (Destra) ---
+            // Top performers a destra
             Row(
                 modifier = Modifier.weight(2f),
                 horizontalArrangement = Arrangement.SpaceEvenly,

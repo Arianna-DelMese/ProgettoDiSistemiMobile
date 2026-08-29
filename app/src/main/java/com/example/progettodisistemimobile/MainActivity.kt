@@ -36,7 +36,7 @@ class MainActivity : FragmentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     when {
-                        // Sto ancora leggendo il DataStore
+                        // Sta ancora leggendo il DataStore
                         sessione == null -> {
                             Box(
                                 modifier = Modifier.fillMaxSize(),
@@ -47,7 +47,7 @@ class MainActivity : FragmentActivity() {
                         }
                         // Nessun utente loggato
                         sessione!!.isEmpty() -> AuthNavHost(authViewModel)
-                        // Utente loggato: app vera e propria
+                        // Utente loggato
                         else -> MainAppScaffold()
                     }
                 }

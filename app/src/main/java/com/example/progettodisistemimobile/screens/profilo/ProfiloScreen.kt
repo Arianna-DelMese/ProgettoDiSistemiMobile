@@ -28,6 +28,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.progettodisistemimobile.data.AuthViewModel
 import com.example.progettodisistemimobile.data.MainViewModel
 import java.io.File
+import androidx.core.net.toUri
 
 @Composable
 fun ProfiloScreen(
@@ -43,20 +44,17 @@ fun ProfiloScreen(
     var newNameInput by rememberSaveable { mutableStateOf("") }
     var isNameAvailable by remember { mutableStateOf(true) }
 
-    // --- LOGICA PERSISTENTE PER L'URI (Saver personalizzato) ---
     val uriSaver = Saver<Uri?, String>(
         save = { it?.toString() ?: "" },
-        restore = { if (it.isEmpty()) null else Uri.parse(it) }
+        restore = { if (it.isEmpty()) null else it.toUri() }
     )
 
-    // Questi stati ora sopravvivono se Android ricrea l'activity per i permessi o la camera
     var selectedImageUri by rememberSaveable(stateSaver = uriSaver) { mutableStateOf(null) }
     var showImagePreview by rememberSaveable { mutableStateOf(false) }
     var showImageSourceOptions by rememberSaveable { mutableStateOf(false) }
     var uriScatto by rememberSaveable(stateSaver = uriSaver) { mutableStateOf(null) }
 
-    // --- LAUNCHERS ---
-
+    // Launcher
     val galleriaLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
     ) { uri ->
@@ -99,8 +97,6 @@ fun ProfiloScreen(
             permessoCameraLauncher.launch(Manifest.permission.CAMERA)
         }
     }
-
-    // --- FINE LOGICA FOTOCAMERA ---
 
     LaunchedEffect(newNameInput) {
         if (newNameInput.isNotEmpty() && newNameInput != currentUsername) {

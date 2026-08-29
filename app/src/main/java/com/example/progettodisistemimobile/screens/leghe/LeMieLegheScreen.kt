@@ -28,7 +28,6 @@ import com.example.progettodisistemimobile.data.MainViewModel
 
 @Composable
 fun LeMieLegheScreen(navController: NavController, viewModel: MainViewModel = viewModel()) {
-    // Osserviamo l'utente correntemente loggato dal ViewModel (sessione globale)
     val username by viewModel.currentUser.collectAsState()
     val leghe by viewModel.getLegheUtente(username).collectAsState(initial = emptyList())
 

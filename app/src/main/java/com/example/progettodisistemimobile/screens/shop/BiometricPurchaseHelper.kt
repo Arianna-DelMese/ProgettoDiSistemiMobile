@@ -31,7 +31,6 @@ fun showBiometricPurchasePrompt(
     val executor = ContextCompat.getMainExecutor(context)
     val biometricManager = BiometricManager.from(context)
 
-    // Definiamo i metodi di sblocco: Impronta (Strong) o PIN/Sequenza
     val authenticators = BiometricManager.Authenticators.BIOMETRIC_STRONG or 
                         BiometricManager.Authenticators.DEVICE_CREDENTIAL
 

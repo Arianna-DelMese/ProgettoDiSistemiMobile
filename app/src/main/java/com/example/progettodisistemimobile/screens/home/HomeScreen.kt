@@ -7,7 +7,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
@@ -21,7 +20,6 @@ fun HomeScreen(viewModel: MainViewModel = viewModel()) {
     var selectedTab by remember { mutableIntStateOf(1) }
 
     Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
-        // --- TOP NAVIGATION BAR ---
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -60,7 +58,7 @@ fun HomeScreen(viewModel: MainViewModel = viewModel()) {
             color = MaterialTheme.colorScheme.outlineVariant
         )
 
-        // --- CONTENUTO DELLE PAGINE ---
+        // Contenuto della pagina in base alla selezione del tab
         Box(modifier = Modifier.weight(1f)) {
             if (selectedTab == 1) {
                 FantasanremoView(viewModel)
