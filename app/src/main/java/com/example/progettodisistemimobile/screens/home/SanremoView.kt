@@ -9,6 +9,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -25,9 +27,7 @@ fun SanremoView(viewModel: MainViewModel) {
     val cantanti by viewModel.tuttiICantantiPerPunti.collectAsState(initial = emptyList())
 
     val isEvening4 = selectedEvening == 4
-    // Utilizziamo il colore Terziario per Sanremo
-    val accentColor = if (isEvening4) Color(0xFFFFD700) else MaterialTheme.colorScheme.tertiary
-    // Sfondo esterno meno saturato (tertiaryContainer)
+    val accentColor = if (isEvening4) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.tertiary
     val externalBgColor = MaterialTheme.colorScheme.tertiaryContainer
     val cardContentColor = MaterialTheme.colorScheme.onSurface
 
@@ -61,8 +61,8 @@ fun SanremoView(viewModel: MainViewModel) {
                 (1..5).forEach { evening ->
                     val isSelected = selectedEvening == evening
                     val isSpecial4 = evening == 4
-                    val selectedBg = if (isSelected) (if (isSpecial4) Color(0xFFFFD700) else MaterialTheme.colorScheme.tertiary) else Color.Transparent
-                    val contentColor = if (isSelected) MaterialTheme.colorScheme.onTertiary else MaterialTheme.colorScheme.onBackground
+                    val selectedBg = if (isSelected) (if (isSpecial4) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.tertiary) else Color.Transparent
+                    val contentColor = if (isSelected) (if (isSpecial4) MaterialTheme.colorScheme.onSecondary else MaterialTheme.colorScheme.onTertiary) else MaterialTheme.colorScheme.onBackground
 
                     Box(
                         modifier = Modifier
@@ -73,7 +73,7 @@ fun SanremoView(viewModel: MainViewModel) {
                                     Modifier
                                         .offset(y = 1.dp)
                                         .background(color = selectedBg, shape = RectangleShape)
-                                        .border(width = 1.dp, color = accentColor, shape = RectangleShape)
+                                        .border(width = 1.dp, color = if(isSpecial4) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.tertiary, shape = RectangleShape)
                                 } else {
                                     Modifier
                                         .background(color = Color.Transparent, shape = RectangleShape)
@@ -109,7 +109,7 @@ fun SanremoView(viewModel: MainViewModel) {
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
-                        text = if (isEvening4) "Serata Cover & Duetti ⭐" else "Classifica Serata $selectedEvening",
+                        text = if (isEvening4) "Serata Cover & Duetti" else "Classifica Serata $selectedEvening",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         color = accentColor,
@@ -127,7 +127,7 @@ fun SanremoView(viewModel: MainViewModel) {
                                 overrideTextColor = cardContentColor
                             )
                             HorizontalDivider(
-                                modifier = Modifier.padding(vertical = 4.dp), 
+                                modifier = Modifier.padding(vertical = 4.dp),
                                 color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
                             )
                         }
