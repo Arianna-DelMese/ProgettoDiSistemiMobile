@@ -35,6 +35,7 @@ import androidx.core.content.ContextCompat
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.launch
+import androidx.core.net.toUri
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -79,7 +80,7 @@ fun CreaLegaScreen(
             nome = lega.nome_lega
             descrizione = lega.descrizione
             pubblica = lega.stato
-            immagineUri = lega.immagine?.let { Uri.parse(it) }
+            immagineUri = lega.immagine?.toUri()
             if (lega.latitudine != null && lega.longitudine != null) {
                 val citta = cercaCitta(context, lega.latitudine, lega.longitudine)
                 posizione = PosizioneTrovata(lega.latitudine, lega.longitudine, citta)
@@ -389,6 +390,7 @@ fun CreaLegaScreen(
         }
     }
 }
+
 /** Crea un file temporaneo dove la fotocamera scriverà lo scatto. */
 private fun creaUriTemporaneo(context: Context): Uri {
     val file = File.createTempFile("lega_", ".jpg", context.cacheDir)

@@ -57,9 +57,6 @@ dependencies {
     // Icons
     implementation(libs.androidx.compose.material.icons.extended)
 
-    // Ktor/Serialization
-    implementation(libs.ktor.serialization.kotlinx.json)
-
     // Room
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)

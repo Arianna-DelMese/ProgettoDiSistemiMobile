@@ -11,9 +11,6 @@ interface AppDao {
     suspend fun insertUtente(utente: Utente)
 
     @Query("SELECT * FROM utente WHERE nome_utente = :username")
-    suspend fun getUtenteByUsername(username: String): Utente?
-
-    @Query("SELECT * FROM utente WHERE nome_utente = :username")
     fun getUtenteFlow(username: String): Flow<Utente?>
 
     @Query("SELECT token FROM utente WHERE nome_utente = :username")
@@ -27,9 +24,6 @@ interface AppDao {
 
     @Query("SELECT EXISTS(SELECT 1 FROM utente WHERE nome_utente = :username)")
     suspend fun utenteEsiste(username: String): Boolean
-
-    @Query("SELECT COUNT(*) FROM utente WHERE nome_utente = :username")
-    suspend fun countUtentiByUsername(username: String): Int
 
     @Query("SELECT * FROM utente WHERE email = :email")
     suspend fun getUtenteByEmail(email: String): Utente?
@@ -87,9 +81,6 @@ interface AppDao {
         ORDER BY u.punti DESC
     """)
     fun getClassificaLegaConCapitano(idLega: Int): Flow<List<UserRankingItem>>
-
-    @Query("SELECT * FROM utente_in_lega WHERE id_lega = :idLega AND stato = 1 LIMIT 1")
-    suspend fun getCreatoreLega(idLega: Int): UtenteInLega?
 
     /**
      * Leghe pubbliche a cui l'utente NON è già iscritto, filtrate per nome.

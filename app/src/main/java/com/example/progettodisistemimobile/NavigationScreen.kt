@@ -1,25 +1,17 @@
 package com.example.progettodisistemimobile
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.AddBox
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.ShoppingBasket
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.ui.graphics.vector.ImageVector
 
 sealed interface Screen {
     val route: String
     val label: String
     val icon: ImageVector?
-
-    data object Login : Screen {
-        override val route = "login"
-        override val label = "Login"
-        override val icon = null
-    }
-
-    data object Register : Screen {
-        override val route = "register"
-        override val label = "Registrazione"
-        override val icon = null
-    }
 
     data object Home : Screen {
         override val route = "home"

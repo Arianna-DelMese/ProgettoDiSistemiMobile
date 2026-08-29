@@ -19,8 +19,6 @@ import androidx.compose.ui.unit.dp
 import com.example.progettodisistemimobile.data.Lega
 import com.example.progettodisistemimobile.data.MainViewModel
 import androidx.compose.foundation.background
-import androidx.compose.material.icons.filled.List
-import androidx.compose.material.icons.filled.Map
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.style.TextAlign
@@ -228,7 +226,7 @@ private fun LegaSelezionabileRow(
                 }
             }
 
-            // Segnala le leghe che hanno una posizione: serviranno per la mappa
+            // Segnala le leghe che compaiono sulla mappa
             if (lega.latitudine != null) {
                 Icon(
                     Icons.Default.LocationOn,

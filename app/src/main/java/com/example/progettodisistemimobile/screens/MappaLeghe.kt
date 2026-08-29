@@ -1,7 +1,6 @@
 package com.example.progettodisistemimobile.screens
 
 import android.content.Context
-import android.preference.PreferenceManager
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -12,6 +11,7 @@ import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
+import androidx.compose.ui.platform.LocalContext
 
 /**
  * Mappa OpenStreetMap con un segnaposto per ogni lega che ha delle coordinate.
@@ -23,13 +23,14 @@ fun MappaLeghe(
     onLegaSelezionata: (Lega) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val context = androidx.compose.ui.platform.LocalContext.current
+
+    val context = LocalContext.current
 
     // osmdroid va configurato una volta prima di creare la mappa
     remember {
         Configuration.getInstance().load(
             context,
-            PreferenceManager.getDefaultSharedPreferences(context)
+            context.getSharedPreferences("osmdroid", Context.MODE_PRIVATE)
         )
         // Obbligatorio: OSM richiede di identificare l'app che scarica le mappe
         // OSM blocca gli user agent che iniziano con "com.example":
