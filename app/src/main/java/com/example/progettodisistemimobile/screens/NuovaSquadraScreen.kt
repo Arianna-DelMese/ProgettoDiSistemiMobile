@@ -27,13 +27,23 @@ import androidx.compose.ui.unit.sp
 fun NuovaSquadraScreen(
     viewModel: MainViewModel,
     onCreaNuovaLega: () -> Unit,
-    onAggiungiALegaEsistente: () -> Unit
+    onAggiungiALegaEsistente: () -> Unit,
+    onIscrizioneDaInvito: () -> Unit
 ) {
     val username by viewModel.currentUser.collectAsState()
     val tokenDisponibili by viewModel.getTokens(username).collectAsState(initial = 0)
     val cantanti by viewModel.tuttiICantantiPerPunti.collectAsState(initial = emptyList())
     val selezionati by viewModel.cantantiSelezionati.collectAsState()
     val capitano by viewModel.capitano.collectAsState()
+    val legaDaInvito by viewModel.legaDaInvito.collectAsState()
+    val legaInvito by (
+            if (legaDaInvito != null) viewModel.getLega(legaDaInvito!!)
+            else kotlinx.coroutines.flow.flowOf(null)
+            ).collectAsState(initial = null)
+    val giaIscritta by (
+            if (legaDaInvito != null) viewModel.getDatiPartecipazione(legaDaInvito!!, username)
+            else kotlinx.coroutines.flow.flowOf(null)
+            ).collectAsState(initial = null)
 
     var ricerca by rememberSaveable { mutableStateOf("") }
     // 0 = crea in una nuova lega, 1 = aggiungi a lega esistente
@@ -53,39 +63,81 @@ fun NuovaSquadraScreen(
     Column(modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)) {
 
         Spacer(Modifier.height(16.dp))
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "Crea in una nuova lega",
-                fontSize = 21.sp,
-                maxLines = 2,
-                textAlign = TextAlign.Center,
-                fontWeight = if (modalitaSelezionata == 0) FontWeight.Bold else FontWeight.Normal,
-                textDecoration = TextDecoration.Underline,
-                color = if (modalitaSelezionata == 0) MaterialTheme.colorScheme.primary else Color.Gray,
-                modifier = Modifier
-                    .weight(1f)
-                    .clickable { modalitaSelezionata = 0 }
-                    .padding(horizontal = 8.dp)
-            )
 
-            Box(modifier = Modifier.width(1.dp).height(40.dp).background(Color.LightGray))
+        // Se arrivo da un invito la destinazione è già decisa: niente selettore,
+        // mostro invece qual è la lega in cui sto entrando
+        if (legaDaInvito == null) {
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Crea in una nuova lega",
+                    fontSize = 21.sp,
+                    maxLines = 2,
+                    textAlign = TextAlign.Center,
+                    fontWeight = if (modalitaSelezionata == 0) FontWeight.Bold else FontWeight.Normal,
+                    textDecoration = TextDecoration.Underline,
+                    color = if (modalitaSelezionata == 0) MaterialTheme.colorScheme.primary else Color.Gray,
+                    modifier = Modifier
+                        .weight(1f)
+                        .clickable { modalitaSelezionata = 0 }
+                        .padding(horizontal = 8.dp)
+                )
 
-            Text(
-                text = "Aggiungi a lega esistente",
-                fontSize = 21.sp,
-                maxLines = 2,
-                textAlign = TextAlign.Center,
-                fontWeight = if (modalitaSelezionata == 1) FontWeight.Bold else FontWeight.Normal,
-                textDecoration = TextDecoration.Underline,
-                color = if (modalitaSelezionata == 1) MaterialTheme.colorScheme.primary else Color.Gray,
-                modifier = Modifier
-                    .weight(1f)
-                    .clickable { modalitaSelezionata = 1 }
-                    .padding(horizontal = 8.dp)
-            )
+                Box(modifier = Modifier.width(1.dp).height(40.dp).background(Color.LightGray))
+
+                Text(
+                    text = "Aggiungi a lega esistente",
+                    fontSize = 21.sp,
+                    maxLines = 2,
+                    textAlign = TextAlign.Center,
+                    fontWeight = if (modalitaSelezionata == 1) FontWeight.Bold else FontWeight.Normal,
+                    textDecoration = TextDecoration.Underline,
+                    color = if (modalitaSelezionata == 1) MaterialTheme.colorScheme.primary else Color.Gray,
+                    modifier = Modifier
+                        .weight(1f)
+                        .clickable { modalitaSelezionata = 1 }
+                        .padding(horizontal = 8.dp)
+                )
+            }
+        } else {
+            Card(
+                modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+                )
+            ) {
+                Row(
+                    modifier = Modifier.padding(12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        if (giaIscritta != null) {
+                            Text(
+                                text = "Sei già in ${legaInvito?.nome_lega ?: "questa lega"}",
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                text = "La trovi in Le mie leghe.",
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        } else {
+                            Text(
+                                text = "Stai entrando in ${legaInvito?.nome_lega ?: "una lega"}",
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                text = "Scegli la tua squadra per completare l'iscrizione.",
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
+                    }
+                    TextButton(onClick = { viewModel.annullaInvito() }) {
+                        Text("Annulla")
+                    }
+                }
+            }
         }
 
         HorizontalDivider(thickness = 1.dp, color = Color.LightGray.copy(alpha = 0.5f))
@@ -149,12 +201,21 @@ fun NuovaSquadraScreen(
 
         Button(
             onClick = {
-                if (modalitaSelezionata == 0) onCreaNuovaLega() else onAggiungiALegaEsistente()
+                val idInvito = legaDaInvito
+                if (idInvito != null) {
+                    // Arrivo da un invito: salvo subito squadra e iscrizione
+                    viewModel.uniscitiALegaConSquadra(idInvito) { onIscrizioneDaInvito() }
+                } else if (modalitaSelezionata == 0) {
+                    onCreaNuovaLega()
+                } else {
+                    onAggiungiALegaEsistente()
+                }
             },
-            enabled = squadraCompleta && capitanoScelto && costoTotale <= tokenDisponibili,
+            enabled = squadraCompleta && capitanoScelto && costoTotale <= tokenDisponibili && giaIscritta == null,
             modifier = Modifier.fillMaxWidth()
+
         ) {
-            Text("Conferma")
+            Text(if (legaDaInvito != null) "Entra nella lega" else "Conferma")
         }
 
         Spacer(Modifier.height(16.dp))

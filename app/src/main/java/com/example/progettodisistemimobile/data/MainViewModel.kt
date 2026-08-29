@@ -112,6 +112,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     // --- LOGICA SELEZIONE NUOVA SQUADRA ---
     private val _cantantiSelezionati = MutableStateFlow<List<String>>(emptyList())
+    // Id della lega da cui si è arrivati tramite invito (null = flusso normale)
+    private val _legaDaInvito = MutableStateFlow<Int?>(null)
+    val legaDaInvito: StateFlow<Int?> = _legaDaInvito.asStateFlow()
+
+    fun impostaLegaDaInvito(idLega: Int) {
+        _legaDaInvito.value = idLega
+    }
+
+    fun annullaInvito() {
+        _legaDaInvito.value = null
+    }
+
     val cantantiSelezionati: StateFlow<List<String>> = _cantantiSelezionati.asStateFlow()
 
     private val _capitano = MutableStateFlow<String?>(null)
@@ -142,6 +154,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun resetSelezione() {
         _cantantiSelezionati.value = emptyList()
         _capitano.value = null
+        _legaDaInvito.value = null
     }
 
     fun creaLegaConSquadra(

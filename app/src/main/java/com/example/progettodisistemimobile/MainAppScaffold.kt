@@ -20,6 +20,7 @@ import com.example.progettodisistemimobile.screens.leghe.detail.LegaDetailScreen
 import com.example.progettodisistemimobile.screens.leghe.formazione.ModificaFormazioneScreen
 import com.example.progettodisistemimobile.screens.profilo.ProfiloScreen
 import com.example.progettodisistemimobile.screens.shop.ShopScreen
+import androidx.navigation.navDeepLink
 
 @Composable
 fun MainAppScaffold() {
@@ -46,7 +47,12 @@ fun MainAppScaffold() {
                 NuovaSquadraScreen(
                     viewModel = mainViewModel,
                     onCreaNuovaLega = { navController.navigate("crea_lega") },
-                    onAggiungiALegaEsistente = { navController.navigate("aggiungi_lega") }
+                    onAggiungiALegaEsistente = { navController.navigate("aggiungi_lega") },
+                    onIscrizioneDaInvito = {
+                        navController.navigate(Screen.LeMieLeghe.route) {
+                            popUpTo(0) { inclusive = true }
+                        }
+                    }
                 )
             }
             composable(Screen.Shop.route) {
@@ -66,10 +72,11 @@ fun MainAppScaffold() {
             ) { backStackEntry ->
                 val idLega = backStackEntry.arguments?.getInt("idLega") ?: 0
                 LaunchedEffect(idLega) {
-                    mainViewModel.iscrizioneRapidaLega(idLega) {
-                        navController.navigate(Screen.LeMieLeghe.route) {
-                            popUpTo(0) { inclusive = true }
-                        }
+                    // Memorizzo l'invito e mando a comporre la squadra:
+                    // non si entra in una lega senza squadra
+                    mainViewModel.impostaLegaDaInvito(idLega)
+                    navController.navigate(Screen.NuovaSquadra.route) {
+                        popUpTo(0) { inclusive = true }
                     }
                 }
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
