@@ -109,7 +109,18 @@ fun CreaLegaScreen(
     val galleriaLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
     ) { uri ->
-        if (uri != null) immagineUri = uri
+        if (uri != null) {
+            // Il permesso sull'uri scade alla chiusura dell'app: lo rendo persistente
+            try {
+                context.contentResolver.takePersistableUriPermission(
+                    uri,
+                    android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
+                )
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+            immagineUri = uri
+        }
     }
 
     val fotocameraLauncher = rememberLauncherForActivityResult(

@@ -18,7 +18,9 @@ import androidx.compose.ui.unit.dp
 import com.example.progettodisistemimobile.data.AuthUiState
 import com.example.progettodisistemimobile.data.AuthViewModel
 import androidx.compose.runtime.saveable.rememberSaveable
-
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.ui.text.input.VisualTransformation
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegistrazioneScreen(
@@ -40,6 +42,8 @@ fun RegistrazioneScreen(
             onBack()
         }
     }
+    var passwordVisibile by rememberSaveable { mutableStateOf(false) }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -123,7 +127,18 @@ fun RegistrazioneScreen(
                 supportingText = { Text("Almeno 6 caratteri") },
                 singleLine = true,
                 enabled = !isLoading,
-                visualTransformation = PasswordVisualTransformation(),
+                visualTransformation = if (passwordVisibile) VisualTransformation.None
+                else PasswordVisualTransformation(),
+                trailingIcon = {
+                    IconButton(onClick = { passwordVisibile = !passwordVisibile }) {
+                        Icon(
+                            imageVector = if (passwordVisibile) Icons.Default.VisibilityOff
+                            else Icons.Default.Visibility,
+                            contentDescription = if (passwordVisibile) "Nascondi password"
+                            else "Mostra password"
+                        )
+                    }
+                },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Password,
                     imeAction = ImeAction.Next
