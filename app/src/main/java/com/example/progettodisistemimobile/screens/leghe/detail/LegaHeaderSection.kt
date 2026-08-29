@@ -31,7 +31,7 @@ fun LegaHeaderSection(
     onBack: () -> Unit
     ) {
     val context = LocalContext.current
-    
+
     Column {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -72,16 +72,19 @@ fun LegaHeaderSection(
             )
 
             Row(verticalAlignment = Alignment.CenterVertically) {
-                // Tasto Invita senza bordi
                 TextButton(
                     onClick = {
-                        val shareText = "Entra nella mia lega '${lega?.nome_lega ?: nomeLegaFallback}'! Codice: ${lega?.id_lega ?: 0}"
+                        val leagueId = lega?.id_lega ?: 0
+                        // Il link tecnico che verrà riconosciuto dal Manifest
+                        val deepLink = "fantasanremo://join/$leagueId"
+                        val shareText = "Entra nella mia lega '${lega?.nome_lega ?: nomeLegaFallback}'! Clicca qui per unirti: $deepLink"
+
                         val sendIntent = Intent().apply {
                             action = Intent.ACTION_SEND
                             putExtra(Intent.EXTRA_TEXT, shareText)
                             type = "text/plain"
                         }
-                        context.startActivity(Intent.createChooser(sendIntent, "Condividi"))
+                        context.startActivity(Intent.createChooser(sendIntent, "Condividi Lega"))
                     },
                     contentPadding = PaddingValues(horizontal = 4.dp)
                 ) {
@@ -91,13 +94,18 @@ fun LegaHeaderSection(
                 }
 
                 if (partecipazione?.stato == true) {
-                    TextButton(onClick = onModificaLega, contentPadding = PaddingValues(horizontal = 4.dp)) {
+                    TextButton(
+                        onClick = onModificaLega,
+                        contentPadding = PaddingValues(horizontal = 4.dp),
+                        colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.tertiary)
+                    ) {
                         Text("Modifica", fontSize = 14.sp)
                     }
                 } else if (partecipazione != null) {
                     TextButton(
                         onClick = onAbbandonaLega,
-                        contentPadding = PaddingValues(horizontal = 4.dp)
+                        contentPadding = PaddingValues(horizontal = 4.dp),
+                        colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.tertiary)
                     ) {
                         Text("Abbandona", fontSize = 14.sp)
                     }

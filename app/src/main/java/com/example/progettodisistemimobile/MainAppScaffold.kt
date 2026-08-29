@@ -1,18 +1,17 @@
 package com.example.progettodisistemimobile
 
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
+import androidx.navigation.compose.*
 import androidx.navigation.navArgument
+import androidx.navigation.navDeepLink
 import com.example.progettodisistemimobile.data.MainViewModel
 import com.example.progettodisistemimobile.screens.*
 import com.example.progettodisistemimobile.screens.home.HomeScreen
@@ -57,6 +56,27 @@ fun MainAppScaffold() {
                 ProfiloScreen(mainViewModel)
             }
 
+            // --- GESTIONE DEEP LINK DI INVITO ---
+            composable(
+                route = "join_lega/{idLega}",
+                arguments = listOf(navArgument("idLega") { type = NavType.IntType }),
+                deepLinks = listOf(
+                    navDeepLink { uriPattern = "fantasanremo://join/{idLega}" }
+                )
+            ) { backStackEntry ->
+                val idLega = backStackEntry.arguments?.getInt("idLega") ?: 0
+                LaunchedEffect(idLega) {
+                    mainViewModel.iscrizioneRapidaLega(idLega) {
+                        navController.navigate(Screen.LeMieLeghe.route) {
+                            popUpTo(0) { inclusive = true }
+                        }
+                    }
+                }
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
+                }
+            }
+
             composable(
                 route = Screen.DettaglioLega.route,
                 arguments = listOf(
@@ -95,7 +115,7 @@ fun MainAppScaffold() {
                 CreaLegaScreen(
                     viewModel = mainViewModel,
                     onBack = { navController.popBackStack() },
-                    onLegaCreata = { },              // non usata in modifica
+                    onLegaCreata = { },
                     idLegaDaModificare = idLega
                 )
             }
@@ -139,7 +159,8 @@ fun BottomNavigationBar(navController: NavHostController) {
             val isSelected = when(screen) {
                 Screen.LeMieLeghe -> currentRoute == Screen.LeMieLeghe.route ||
                         currentRoute?.startsWith("dettaglio_lega") == true ||
-                        currentRoute?.startsWith("modifica_formazione") == true
+                        currentRoute?.startsWith("modifica_formazione") == true ||
+                        currentRoute?.startsWith("join_lega") == true
                 Screen.NuovaSquadra -> currentRoute == Screen.NuovaSquadra.route ||
                         currentRoute == "crea_lega" ||
                         currentRoute == "aggiungi_lega"

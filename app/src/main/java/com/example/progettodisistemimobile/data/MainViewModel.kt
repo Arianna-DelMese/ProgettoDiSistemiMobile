@@ -258,4 +258,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             onFatto()
         }
     }
+
+    /** Iscrizione rapida da link (Deep Link) */
+    fun iscrizioneRapidaLega(idLega: Int, onCompletato: () -> Unit) {
+        val username = currentUser.value
+        if (username.isEmpty()) return
+        viewModelScope.launch {
+            val partecipazione = dao.getUtenteInLega(idLega, username).first()
+            if (partecipazione == null) {
+                dao.joinLega(UtenteInLega(username, idLega, false, 0))
+            }
+            onCompletato()
+        }
+    }
 }
