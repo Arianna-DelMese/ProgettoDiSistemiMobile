@@ -9,7 +9,6 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.progettodisistemimobile.Screen
@@ -29,17 +28,16 @@ fun LegaDetailScreen(
     val squadra by viewModel.getSquadra(idLega, currentUsername).collectAsState(initial = emptyList())
     val classifica by viewModel.getClassificaLegaConCapitano(idLega).collectAsState(initial = emptyList())
 
-    // Stato persistente per il dialogo di conferma
+    // Per popup al click di Abbandona
     var mostraConfermaAbbandono by rememberSaveable { mutableStateOf(false) }
 
-    // Dialogo di conferma per l'abbandono della lega
     if (mostraConfermaAbbandono) {
         AlertDialog(
             onDismissRequest = { mostraConfermaAbbandono = false },
             title = { Text("Abbandonare la lega?") },
             text = {
                 Text(
-                    "Sei sicuro? La tua squadra verrà eliminata e non potrai recuperare i token spesi per crearla.",
+                    "Sei sicuro? La tua squadra verrà eliminata e non potrai recuperare i token spesi.",
                     style = MaterialTheme.typography.bodyMedium
                 )
             },
@@ -53,7 +51,7 @@ fun LegaDetailScreen(
             },
             dismissButton = {
                 TextButton(onClick = { mostraConfermaAbbandono = false }) {
-                    Text("Annulla", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text("Annulla", color = MaterialTheme.colorScheme.outline)
                 }
             }
         )
@@ -64,7 +62,6 @@ fun LegaDetailScreen(
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.Start
     ) {
-        // --- HEADER E PUNTI ---
         LegaHeaderSection(
             lega = lega,
             nomeLegaFallback = nomeLega,
@@ -79,7 +76,6 @@ fun LegaDetailScreen(
                 .fillMaxSize()
                 .padding(horizontal = 16.dp, vertical = 12.dp)
         ) {
-            // --- TOP PERFORMERS E BOTTONE MODIFICA ---
             TopPerformersSection(
                 squadra = squadra,
                 onModificaClick = { navController.navigate(Screen.ModificaFormazione.createRoute(idLega)) }
@@ -87,7 +83,6 @@ fun LegaDetailScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // --- CLASSIFICA UTENTI ---
             UserRankingSection(classifica = classifica)
         }
     }
