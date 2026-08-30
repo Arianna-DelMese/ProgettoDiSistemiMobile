@@ -27,6 +27,7 @@ fun LegaHeaderSection(
     lega: Lega?,
     nomeLegaFallback: String,
     partecipazione: UtenteInLega?,
+    puntiTitolari: Int,
     onModificaLega: () -> Unit,
     onAbbandonaLega: () -> Unit,
     onBack: () -> Unit
@@ -78,7 +79,6 @@ fun LegaHeaderSection(
                 TextButton(
                     onClick = {
                         val leagueId = lega?.id_lega ?: 0
-                        // Il link tecnico che verrà riconosciuto dal Manifest
                         val deepLink = "fantasanremo://join/$leagueId"
                         val shareText = "Entra nella mia lega '${lega?.nome_lega ?: nomeLegaFallback}'! Clicca qui per unirti: $deepLink"
 
@@ -123,7 +123,7 @@ fun LegaHeaderSection(
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(text = "I miei punti: ", fontSize = 18.sp, fontWeight = FontWeight.Medium)
             Text(
-                text = "${partecipazione?.punti ?: 0} PT",
+                text = "$puntiTitolari PT",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.ExtraBold,
                 color = MaterialTheme.colorScheme.primary

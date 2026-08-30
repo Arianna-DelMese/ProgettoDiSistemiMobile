@@ -28,7 +28,12 @@ fun LegaDetailScreen(
     val squadra by viewModel.getSquadra(idLega, currentUsername).collectAsState(initial = emptyList())
     val classifica by viewModel.getClassificaLegaConCapitano(idLega).collectAsState(initial = emptyList())
 
-    // Per popup al click di Abbandona
+    val puntiTitolari = remember(squadra) {
+        squadra.take(5).mapIndexed { index, cantante ->
+            if (index == 0) cantante.punti * 2 else cantante.punti
+        }.sum()
+    }
+
     var mostraConfermaAbbandono by rememberSaveable { mutableStateOf(false) }
 
     if (mostraConfermaAbbandono) {
@@ -66,6 +71,7 @@ fun LegaDetailScreen(
             lega = lega,
             nomeLegaFallback = nomeLega,
             partecipazione = partecipazione,
+            puntiTitolari = puntiTitolari,
             onBack = onBack,
             onModificaLega = { navController.navigate("modifica_lega/$idLega") },
             onAbbandonaLega = { mostraConfermaAbbandono = true }
