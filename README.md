@@ -72,7 +72,7 @@ Il database si popola automaticamente al primo avvio con 30 cantanti, alcune leg
 
 ## Scelte progettuali e limiti noti
  
-**Architettura local-first.** **Architettura local-first.** Tutti i dati dell’app vengono salvati localmente sul dispositivo tramite un database Room, senza utilizzare un backend esterno. Questa scelta è stata fatta considerando lo scopo didattico del progetto. Di conseguenza, le leghe create non possono essere condivise tra dispositivi diversi: la gestione di più utenti viene quindi simulata attraverso account differenti presenti sullo stesso telefono.
+**Architettura local-first.** Tutti i dati dell’app vengono salvati localmente sul dispositivo tramite un database Room, senza utilizzare un backend esterno. Questa scelta è stata fatta considerando lo scopo didattico del progetto. Di conseguenza, le leghe create non possono essere condivise tra dispositivi diversi: la gestione di più utenti viene quindi simulata attraverso account differenti presenti sullo stesso telefono.
 
  
 **Deep link limitati allo stesso dispositivo.** L'invito usa uno schema personalizzato (`fantasanremo://join/{id}`): funziona correttamente, ma non essendo un App Link verificato non viene reso cliccabile dalle app di messaggistica, e l'id della lega ha significato solo nel database locale.
