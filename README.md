@@ -25,7 +25,7 @@ L'app permette agli utenti di creare squadre di sette cantanti rispettando un bu
 
 • Modifica Formazione: Interfaccia con Drag & Drop per scambiare titolari e riserve.
 
-• Capitano: Selezione del capitano della squadra.
+• Capitano: Selezione del capitano della squadra per ottenere punteggio bonus.
 
 ### Shop & Biometria
 • Acquisto Token: Bundle di token acquistabili per potenziare la propria squadra.
