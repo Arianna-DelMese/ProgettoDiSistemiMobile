@@ -58,5 +58,5 @@ e monitorare le classifiche del Festival di Sanremo.
 
 • Permessi richiesti: Fotocamera, Posizione, Accesso a Internet, Biometria.
 
-## Collaboratrici
+## Autrici
 Arianna Del Mese e Yue Shen.
