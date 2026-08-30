@@ -66,6 +66,9 @@ interface AppDao {
     @Query("SELECT * FROM utente_in_lega WHERE id_lega = :idLega AND nome_utente = :username")
     fun getUtenteInLega(idLega: Int, username: String): Flow<UtenteInLega?>
 
+    @Query("SELECT nome_utente FROM utente_in_lega WHERE id_lega = :idLega")
+    suspend fun getListaNomiUtentiInLega(idLega: Int): List<String>
+
     @Query("""
         SELECT lega.* FROM lega 
         INNER JOIN utente_in_lega ON lega.id_lega = utente_in_lega.id_lega 

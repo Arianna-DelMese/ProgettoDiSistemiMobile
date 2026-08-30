@@ -28,6 +28,11 @@ fun LegaDetailScreen(
     val squadra by viewModel.getSquadra(idLega, currentUsername).collectAsState(initial = emptyList())
     val classifica by viewModel.getClassificaLegaConCapitano(idLega).collectAsState(initial = emptyList())
 
+    // Ricalcolo classifica all'apertura
+    LaunchedEffect(idLega) {
+        viewModel.ricalcolaClassifica(idLega)
+    }
+
     val puntiTitolari = remember(squadra) {
         squadra.take(5).mapIndexed { index, cantante ->
             if (index == 0) cantante.punti * 2 else cantante.punti

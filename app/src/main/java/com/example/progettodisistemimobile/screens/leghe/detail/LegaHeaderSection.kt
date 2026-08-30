@@ -31,7 +31,7 @@ fun LegaHeaderSection(
     onModificaLega: () -> Unit,
     onAbbandonaLega: () -> Unit,
     onBack: () -> Unit
-    ) {
+) {
     val context = LocalContext.current
 
     Column {
@@ -117,10 +117,17 @@ fun LegaHeaderSection(
         }
 
         Spacer(modifier = Modifier.height(8.dp))
-        HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.outlineVariant)
+        HorizontalDivider(
+            modifier = Modifier.padding(horizontal = 16.dp),
+            thickness = 1.dp, 
+            color = MaterialTheme.colorScheme.outlineVariant
+        )
         Spacer(modifier = Modifier.height(16.dp))
 
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            modifier = Modifier.padding(horizontal = 16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Text(text = "I miei punti: ", fontSize = 18.sp, fontWeight = FontWeight.Medium)
             Text(
                 text = "$puntiTitolari PT",

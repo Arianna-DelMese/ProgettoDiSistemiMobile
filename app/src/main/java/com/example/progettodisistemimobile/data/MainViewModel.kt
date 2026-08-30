@@ -79,6 +79,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             dao.updateRuoloCantante(idLega, username, c1.nome_cantante, r2)
             dao.updateRuoloCantante(idLega, username, c2.nome_cantante, r1)
+            ricalcolaClassifica(idLega)
         }
     }
 
@@ -90,7 +91,20 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 if (currentIndex != -1) {
                     dao.updateRuoloCantante(idLega, username, vecchioCapitano.nome_cantante, currentIndex)
                     dao.updateRuoloCantante(idLega, username, nuovoCapitano.nome_cantante, 0)
+                    ricalcolaClassifica(idLega)
                 }
+            }
+        }
+    }
+
+    // Ricalcola i punti di tutti i membri della lega per aggiornare la classifica globale
+    fun ricalcolaClassifica(idLega: Int) {
+        viewModelScope.launch {
+            val partecipanti = dao.getClassificaLegaConCapitano(idLega).first()
+            partecipanti.forEach { item ->
+                val user = item.utenteInLega.nome_utente
+                val nuoviPunti = dao.calcolaPuntiSquadra(idLega, user)
+                dao.aggiornaPunti(idLega, user, nuoviPunti)
             }
         }
     }
@@ -187,7 +201,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             val costo = dao.getPrezzoTotale(selezione)
             dao.aggiungiToken(username, -costo)
 
-            // 5. Calcolo il punteggio iniziale della squadra
+            // Calcolo il punteggio iniziale della squadra
             val punti = dao.calcolaPuntiSquadra(idLega, username)
             dao.aggiornaPunti(idLega, username, punti)
 
@@ -200,7 +214,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     /**
      * Iscrive l'utente a una lega esistente e vi salva la squadra selezionata.
-     * Stessa logica di creaLegaConSquadra, ma senza creare la lega.
      */
     fun uniscitiALegaConSquadra(idLega: Int, onFatto: () -> Unit) {
         val username = currentUser.value
@@ -249,7 +262,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 descrizione = descrizione.trim(),
                 pubblica = pubblica,
                 immagine = immagine,
-                // Se torna privata, le coordinate non servono più
                 latitudine = if (pubblica) latitudine else null,
                 longitudine = if (pubblica) longitudine else null
             )
@@ -268,6 +280,4 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             onFatto()
         }
     }
-
-
 }
