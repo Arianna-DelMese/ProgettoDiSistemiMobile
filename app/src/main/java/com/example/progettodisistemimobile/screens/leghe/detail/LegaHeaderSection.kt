@@ -120,7 +120,10 @@ fun LegaHeaderSection(
         HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.outlineVariant)
         Spacer(modifier = Modifier.height(16.dp))
 
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            modifier = Modifier.padding(horizontal = 16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Text(text = "I miei punti: ", fontSize = 18.sp, fontWeight = FontWeight.Medium)
             Text(
                 text = "${partecipazione?.punti ?: 0} PT",
