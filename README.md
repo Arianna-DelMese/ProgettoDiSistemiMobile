@@ -1,7 +1,7 @@
 # FantaSanremo Mobile
 Applicazione Android ispirata al FantaSanremo, sviluppata come progetto per il corso di Programmazione di Sistemi Mobile, Università di Bologna, A.A. 2025/26. 
 
-L'app permette agli utenti di creare squadre di sette cantanti rispettando un budget e di sfidarsi con altri partecipanti all'interno di leghe globali o locali. È inoltre possibile seguire le classifiche del Festival di Sanremo serata per serata.
+L'app permette agli utenti di creare squadre di sette cantanti rispettando un budget e di sfidare altri partecipanti all'interno di leghe globali o locali. È inoltre possibile seguire le classifiche del Festival di Sanremo serata per serata.
 
 ## Funzionalità principali
 ### Gestione Utente e Profilo
@@ -64,15 +64,16 @@ L'app permette agli utenti di creare squadre di sette cantanti rispettando un bu
 1. Clonare il repository e aprirlo con Android Studio
 2. Attendere il Gradle sync (scarica le dipendenze)
 3. Avviare su emulatore o dispositivo con API 26 o superiore
-Il database si popola automaticamente al primo avvio con 30 cantanti, alcune leghe e sei utenti di prova.
+Il database si popola automaticamente al primo avvio con 30 cantanti, alcune leghe e 6 utenti di prova.
  
-**Credenziali di test:** `mario@example.com` / `pass`
+**Credenziali di test:** `mario@example.com` / `pass123`
  
 > Se dopo un aggiornamento l'app mostra dati incoerenti, disinstallarla e reinstallarla: lo schema del database viene rigenerato.
 
 ## Scelte progettuali e limiti noti
  
-**Architettura local-first.** Tutti i dati risiedono in un database Room sul dispositivo, senza backend. È una scelta coerente con lo scopo didattico del progetto, ma comporta che le leghe non siano realmente condivise tra dispositivi diversi: l'app simula il multi-utente attraverso account distinti sullo stesso telefono.
+**Architettura local-first.** **Architettura local-first.** Tutti i dati dell’app vengono salvati localmente sul dispositivo tramite un database Room, senza utilizzare un backend esterno. Questa scelta è stata fatta considerando lo scopo didattico del progetto. Di conseguenza, le leghe create non possono essere condivise tra dispositivi diversi: la gestione di più utenti viene quindi simulata attraverso account differenti presenti sullo stesso telefono.
+
  
 **Deep link limitati allo stesso dispositivo.** L'invito usa uno schema personalizzato (`fantasanremo://join/{id}`): funziona correttamente, ma non essendo un App Link verificato non viene reso cliccabile dalle app di messaggistica, e l'id della lega ha significato solo nel database locale.
  
