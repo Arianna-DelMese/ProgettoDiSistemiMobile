@@ -1,7 +1,7 @@
 # FantaSanremo Mobile
-Applicazione Android per la gestione di leghe, squadre e punteggi del Fantasanremo, sviluppata come progetto
-per il corso di Programmazione di Sistemi Mobile. L'app permette agli utenti di creare squadre, unirsi a leghe globali o locali 
-e monitorare le classifiche del Festival di Sanremo.
+Applicazione Android ispirata al FantaSanremo, sviluppata come progetto per il corso di Programmazione di Sistemi Mobile, Università di Bologna, A.A. 2025/26. 
+
+L'app permette agli utenti di creare squadre di sette cantanti rispettando un budget e di sfidarsi con altri partecipanti all'interno di leghe globali o locali. È inoltre possibile seguire le classifiche del Festival di Sanremo serata per serata.
 
 ## Funzionalità principali
 ### Gestione Utente e Profilo
@@ -12,16 +12,16 @@ e monitorare le classifiche del Festival di Sanremo.
 • Personalizzazione: Supporto al Tema Chiaro, Scuro e di Sistema con una palette colori personalizzata.
 
 ### Leghe e Social
-• Creazione Leghe: Possibilità di creare leghe pubbliche o private.
+• Creazione Leghe: Possibilità di creare leghe pubbliche o private con l'aggiunta facoltativa dell'immagine e posizione.
 
-• Geolocalizzazione: Integrazione con mappe per trovare leghe create nelle vicinanze.
+• Geolocalizzazione: Integrazione con mappe per trovare leghe pubbliche geolocalizzate su OpenStreetmap con marker interattivi.
 
-• Inviti Rapidi: Sistema di condivisione del codice lega per invitare gli amici.
+• Inviti: Sistema di condivisione del codice lega per invitare altri utenti.
 
-• Classifiche: Monitoraggio in tempo reale della posizione degli utenti all'interno della lega.
+• Classifiche: Posizione e punteggio di tutti i partecipanti alla lega.
 
 ### Gestione Squadra
-• Creazione Squadra: Selezione di 7 cantanti con un budget limitato di token.
+• Creazione Squadra: Selezione di 7 cantanti con un budget limitato di token, con ricerca per nome o canzone.
 
 • Modifica Formazione: Interfaccia con Drag & Drop per scambiare titolari e riserve.
 
@@ -45,7 +45,7 @@ e monitorare le classifiche del Festival di Sanremo.
 
 • Storage: DataStore Preferences per le impostazioni dell'utente (Tema, Sessione).
 
-• Networking/Immagini: Coil per il caricamento asincrono delle immagini.
+• Immagini: Coil per il caricamento asincrono delle immagini.
 
 • Mappe: OpenStreetMap (osmdroid) per la visualizzazione delle leghe globali.
 
@@ -57,6 +57,27 @@ e monitorare le classifiche del Festival di Sanremo.
 • Target SDK: API 35 (Android 15)
 
 • Permessi richiesti: Fotocamera, Posizione, Accesso a Internet, Biometria.
+
+
+## Come avviare il progetto
+ 
+1. Clonare il repository e aprirlo con Android Studio
+2. Attendere il Gradle sync (scarica le dipendenze)
+3. Avviare su emulatore o dispositivo con API 26 o superiore
+Il database si popola automaticamente al primo avvio con 30 cantanti, alcune leghe e sei utenti di prova.
+ 
+**Credenziali di test:** `mario@example.com` / `pass`
+ 
+> Se dopo un aggiornamento l'app mostra dati incoerenti, disinstallarla e reinstallarla: lo schema del database viene rigenerato.
+
+## Scelte progettuali e limiti noti
+ 
+**Architettura local-first.** Tutti i dati risiedono in un database Room sul dispositivo, senza backend. È una scelta coerente con lo scopo didattico del progetto, ma comporta che le leghe non siano realmente condivise tra dispositivi diversi: l'app simula il multi-utente attraverso account distinti sullo stesso telefono.
+ 
+**Deep link limitati allo stesso dispositivo.** L'invito usa uno schema personalizzato (`fantasanremo://join/{id}`): funziona correttamente, ma non essendo un App Link verificato non viene reso cliccabile dalle app di messaggistica, e l'id della lega ha significato solo nel database locale.
+ 
+**Punteggi calcolati alla creazione della squadra.** Il punteggio somma i punti dei titolari raddoppiando il capitano, e viene calcolato al momento dell'iscrizione. Il cambio formazione influisce sulle serate successive, che in questa versione non vengono simulate.
+ 
 
 ## Autrici
 Arianna Del Mese e Yue Shen.
