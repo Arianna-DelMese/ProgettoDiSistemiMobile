@@ -78,7 +78,10 @@ Il database si popola automaticamente al primo avvio con 30 cantanti, alcune leg
 **Deep link limitati allo stesso dispositivo.** L'invito usa uno schema personalizzato (`fantasanremo://join/{id}`): funziona correttamente, ma non essendo un App Link verificato non viene reso cliccabile dalle app di messaggistica, e l'id della lega ha significato solo nel database locale.
  
 **Punteggi calcolati alla creazione della squadra.** Il punteggio somma i punti dei titolari raddoppiando il capitano, e viene calcolato al momento dell'iscrizione. Il cambio formazione influisce sulle serate successive, che in questa versione non vengono simulate.
- 
+
+## Mockup
+[Mockup Mobile.pdf](https://github.com/user-attachments/files/31617797/Mockup.Mobile.pdf)
 
 ## Autrici
 Arianna Del Mese e Yue Shen.
+
