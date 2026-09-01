@@ -70,7 +70,7 @@ abstract class AppDatabase : RoomDatabase() {
                 Cantante("Righeira", "Vamos a la Playa", 10, 9, "Mungo Jerry", "In the Summertime", 19, null, 12, 23, 27),
                 Cantante("Madonna", "Like a Virgin", 13, 15, "Jimin e Shakira", "Waka Waka", 20, null, 1, 4, 10),
                 Cantante("Laura Pausini", "La Solitudine", 16, 13, "J-HOPE", "Cicken Noodle Soup", 21, null, 3, 16, 4),
-                Cantante("Louis Armstron", "What a Wonderfull World", 18, 20, "V", "Into the Sun", 22, null, 8, 17, 9),
+                Cantante("Louis Armstrong", "What a Wonderful World", 18, 20, "V", "Into the Sun", 22, null, 8, 17, 9),
                 Cantante("Vasco Rossi", "Una Vita Spericolata", 15, 11, "Jenni", "Boombayah", 23, null, 4, 20, 30),
                 Cantante("Matia Bazar", "Vacanze Romane", 18, 15, "Coldplay", "Fix You", 24, null, 2, 5, 5),
                 Cantante("Alicia", "A Natale Puoi", 15, 9, "George Michael", "Last Christmas", 25, null, 5, 18, 17),
