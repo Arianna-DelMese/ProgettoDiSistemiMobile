@@ -63,7 +63,7 @@ fun showBiometricPurchasePrompt(
         .setTitle("Conferma Acquisto")
         .setSubtitle("Autorizza il pagamento di ${bundle.prezzo}€")
         .setAllowedAuthenticators(authenticators)
-        // Nota: se usi DEVICE_CREDENTIAL, non devi impostare setNegativeButtonText
+        // Con DEVICE_CREDENTIAL il negative button non va impostato: lo gestisce il sistema
         .build()
 
     try {

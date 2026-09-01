@@ -123,7 +123,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
         else -> null
     }
 
-    // ---------------- LOGOUT ----------------
+    // Logout
 
     fun logout() {
         viewModelScope.launch {
